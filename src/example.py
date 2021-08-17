@@ -17,6 +17,8 @@ BG_TASKS = ThreadPoolExecutor(max_workers=2)
 Comment = NamedTuple(
     "Comment",
     [
+        ("parent_id", int),
+        ("comment_id", int),
         ("user", str),
         ("markup", str),
         ("kids", List[int]),
@@ -86,7 +88,7 @@ def get_story(_id) -> Story:
         url_domain = "self"
 
     return Story(
-        story_id=_id, title=title, url=url, url_domain=url_domain, kids=kids, comment_count=comment_count, score=score
+        story_id=_id, title=title, url=url, url_domain=url_domain, kids=[str(k) for k in kids], comment_count=comment_count, score=score
     )
 
 
@@ -100,18 +102,18 @@ def _to_relative_time(tstamp):
         return str(delta) + 's ago'
     delta /= 60
     if delta < 60:
-        return str(delta) + 'm ago'
+        return str(int(delta)) + 'm ago'
     delta /= 60
     if delta < 24:
-        return str(delta) + 'h ago'
+        return str(int(delta)) + 'h ago'
     delta /= 24
     if delta < 365:
-        return str(delta) + 'd ago'
+        return str(int(delta)) + 'd ago'
     delta /= 365
-    return str(delta) + 'y ago'
+    return str(int(delta)) + 'y ago'
 
 
-def get_comment(_id) -> Comment:
+def get_comment(parent_id, _id) -> Comment:
     raw_data = get_id(_id)
     deleted = False
     dead = False
@@ -130,4 +132,4 @@ def get_comment(_id) -> Comment:
     dead = raw_data.get("dead", False)
     kids = raw_data.get("kids", [])
 
-    return Comment(user=user, markup=markup, kids=kids, dead=dead, deleted=deleted, age=age)._asdict()
+    return Comment(parent_id=str(parent_id), comment_id=str(_id), user=user, markup=markup, kids=[str(k) for k in kids], dead=dead, deleted=deleted, age=age)._asdict()

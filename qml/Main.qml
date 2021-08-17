@@ -56,9 +56,8 @@ MainView {
                     item.url_domain = data.url_domain
                     item.url = data.url
                     item.comment_count = data.comment_count
-                    item.kids = data.kids.join(',');
-                    break;
-
+                    item.kids = data.kids.join(',')
+                    break
                 }
             })
         }
@@ -74,7 +73,6 @@ MainView {
             id: pageHeader
             title: 'Top Stories'
         }
-
 
         StackView {
             id: stack
@@ -101,12 +99,11 @@ MainView {
                     console.log("urlclicked mainqml", url)
                 }
                 onThreadClicked: {
-                    stack.push(threadview);
-                    threadview.loadThread(kids.split(','));
-                    threadview.visible = true;
+                    stack.push(threadview)
+                    threadview.loadThread(story_id, kids.split(','), 0)
+                    threadview.visible = true
                 }
             }
-
         }
 
         ThreadView {
