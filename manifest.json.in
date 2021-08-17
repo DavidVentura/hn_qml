@@ -1,0 +1,15 @@
+{
+    "name": "hnr.davidv.dev",
+    "description": "Reader for news.ycombinator.com",
+    "architecture": "@CLICK_ARCH@",
+    "title": "HN Reader",
+    "hooks": {
+        "hnr": {
+            "apparmor": "hnr.apparmor",
+            "desktop":  "hnr.desktop"
+        }
+    },
+    "version": "1.0.0",
+    "maintainer": "David Ventura <david@davidv.dev>",
+    "framework" : "@CLICK_FRAMEWORK@"
+}

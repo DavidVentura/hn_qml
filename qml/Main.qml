@@ -1,0 +1,117 @@
+
+
+/*
+ * Copyright (C) 2021  David Ventura
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 3.
+ *
+ * hnr is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+import QtQuick 2.7
+import QtQuick.Controls 2.7
+import Ubuntu.Components 1.3
+import QtQuick.Layouts 1.3
+import Qt.labs.settings 1.0
+import io.thp.pyotherside 1.3
+
+MainView {
+    id: root
+    objectName: 'mainView'
+    applicationName: 'hnr.davidv.dev'
+    automaticOrientation: true
+
+    width: units.gu(45)
+    height: units.gu(75)
+
+    Python {
+        id: python
+
+        Component.onCompleted: {
+            addImportPath(Qt.resolvedUrl('../src/'))
+            console.log(pythonVersion())
+            importModule('example', function () {
+                console.log('module imported')
+                python.call('example.top_stories', [], function (result) {
+                    for (var i = 0; i < result.length; i++) {
+                        listModel.append(result[i])
+                    }
+                })
+            })
+            setHandler('thread-pop', function (id, data) {
+                for (var i = 0; i < listModel.count; i++) {
+                    var item = listModel.get(i)
+                    if (item.story_id !== id) {
+                        continue
+                    }
+
+                    item.title = data.title
+                    item.url_domain = data.url_domain
+                    item.url = data.url
+                    item.comment_count = data.comment_count
+                    item.kids = data.kids.join(',');
+                    break;
+
+                }
+            })
+        }
+
+        onError: {
+            console.log('python error: ' + traceback)
+        }
+        onReceived: console.log('Event' + data)
+    }
+    Page {
+        anchors.fill: parent
+        header: PageHeader {
+            id: pageHeader
+            title: 'Top Stories'
+        }
+
+
+        StackView {
+            id: stack
+            initialItem: lv
+            anchors.fill: parent
+            anchors.topMargin: pageHeader.height
+        }
+
+        ListView {
+            id: lv
+            spacing: 1
+            visible: false
+
+            model: ListModel {
+                id: listModel
+            }
+
+            delegate: ThreadStub {
+                t_id: story_id
+                t_title: title
+                t_url: url_domain
+                t_comments: comment_count
+                onUrlClicked: {
+                    console.log("urlclicked mainqml", url)
+                }
+                onThreadClicked: {
+                    stack.push(threadview);
+                    threadview.loadThread(kids.split(','));
+                    threadview.visible = true;
+                }
+            }
+
+        }
+
+        ThreadView {
+            visible: false
+            id: threadview
+        }
+    }
+}
