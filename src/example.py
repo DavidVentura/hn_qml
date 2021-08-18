@@ -151,7 +151,7 @@ def _to_relative_time(tstamp):
        return 'in the future'
 
    if delta < 60:
-       return str(delta) + 's ago'
+       return str(int(delta)) + 's ago'
    delta /= 60
    if delta < 60:
        return str(int(delta)) + 'm ago'
