@@ -1,23 +1,45 @@
 import QtQuick 2.7
 import QtQuick.Layouts 1.12
 import io.thp.pyotherside 1.5
+import Ubuntu.Components 1.3
 
 Item {
-    property variant color: ['#f44336', '#d500f9', '#304ffe', '#0288d1', '#26A69A', '#00c853', '#fff3e0', '#8d6e63']
+    property variant barColor: ['#f44336', '#d500f9', '#304ffe', '#0288d1', '#26A69A', '#00c853', '#fff3e0', '#8d6e63']
 
     ListView {
+        anchors.leftMargin: units.gu(0.5)
+        anchors.rightMargin: units.gu(0.5)
         anchors.fill: parent
-
+        spacing: units.gu(0.3)
         model: ListModel {
             id: listModel
         }
 
-        delegate: Text {
-            wrapMode: Text.WordWrap
-            x: depth * 10
-            text: markup
-            padding: 10
-            width: parent.width - x
+        delegate: Row {
+            id: comment
+            anchors.leftMargin: depth * units.gu(0.5)
+            anchors.left: parent.left
+            anchors.right: parent.right
+
+            Rectangle {
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                width: units.gu(0.3)
+                color: barColor[depth % 8]
+            }
+            Rectangle {
+
+                width: parent.width
+                height: childrenRect.height
+                color: '#f6f6ef'
+
+                Text {
+                    wrapMode: Text.WordWrap
+                    text: markup
+                    padding: units.gu(1)
+                    width: parent.width
+                }
+            }
         }
     }
 
@@ -30,7 +52,7 @@ Item {
             listModel.insert(insertPosition, {
                                  "depth": depth,
                                  "thread_id": thread_id.toString(),
-                                 "markup": "aaaaaaaa",
+                                 "markup": "...",
                                  "comment_id": kids[k].toString()
                              })
             insertPosition += 1

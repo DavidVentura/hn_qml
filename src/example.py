@@ -12,7 +12,7 @@ import pyotherside
 
 session = requests.Session()
 
-BG_TASKS = ThreadPoolExecutor(max_workers=2)
+BG_TASKS = ThreadPoolExecutor(max_workers=3)
 
 Comment = NamedTuple(
     "Comment",
@@ -43,7 +43,7 @@ Story = NamedTuple(
 
 def fetch_and_signal(_id):
     data = get_story(_id)
-    time.sleep(0.05)
+    time.sleep(0.01)
     pyotherside.send("thread-pop", _id, data._asdict())
 
 
@@ -52,15 +52,15 @@ def top_stories():
         data = json.load(open("topstories.json"))
     else:
         r = session.get("https://hacker-news.firebaseio.com/v0/topstories.json")
-        with open("topstories.json", "w") as fd:
-            fd.write(r.text)
+        #with open("topstories.json", "w") as fd:
+        #    fd.write(r.text)
         data = r.json()
 
     for _id in data:
         BG_TASKS.submit(fetch_and_signal, _id)
     return [
         Story(story_id=i, title="", url="", url_domain="?", kids='', comment_count=0, score=0)._asdict()
-        for i in data[:10]
+        for i in data[:50]
     ]
 
 
@@ -69,7 +69,7 @@ def get_id(_id):
     if os.path.exists(_id + ".json"):
         return json.load(open(_id + ".json"))
     r = session.get("https://hacker-news.firebaseio.com/v0/item/" + _id + ".json")
-    open(_id + ".json", "w").write(r.text)
+    #open(_id + ".json", "w").write(r.text)
     data = r.json()
     return data
 
