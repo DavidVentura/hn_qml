@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Main.qml</file>
+        <file>ThreadStub.qml</file>
+        <file>pages/NewsPage.qml</file>
+        <file>pages/ThreadView.qml</file>
+    </qresource>
+</RCC>

@@ -6,15 +6,26 @@ import Ubuntu.Components 1.3
 Page {
     property variant barColor: ['#f44336', '#d500f9', '#304ffe', '#0288d1', '#26A69A', '#00c853', '#fff3e0', '#8d6e63']
     property string pageTitle: '..'
+    property string pageUrl: 'http://example.com'
     header: PageHeader {
         id: header
         title: pageTitle
+
         leadingActionBar.actions: [
             Action {
                 iconName: "back"
                 text: "Back"
                 onTriggered: {
                     stack.pop()
+                }
+            }
+        ]
+        trailingActionBar.actions: [
+            Action {
+                iconName: "external-link"
+                text: "open in browser"
+                onTriggered: {
+                    Qt.openUrlExternally(pageUrl)
                 }
             }
         ]
@@ -45,18 +56,38 @@ Page {
                 color: barColor[depth % 8]
             }
             Rectangle {
-
+                id: commentBody
                 width: parent.width
                 height: childrenRect.height
                 color: '#f6f6ef'
-
-                Text {
-                    wrapMode: Text.WordWrap
-                    text: markup
+                Column {
                     padding: units.gu(1)
-                    width: parent.width
-                    textFormat: Qt.RichText
-                    onLinkActivated: Qt.openUrlExternally(link)
+
+                    Row {
+                        id: commentHeader
+                        bottomPadding: units.gu(1.2)
+                        Text {
+                            text: age
+                            font.pointSize: units.gu(0.9)
+                            color: '#999'
+                        }
+                        Text {
+                            leftPadding: units.gu(0.8)
+                            text: user
+                            font.pointSize: units.gu(0.9)
+                            font.bold: true
+                            color: barColor[depth % 8]
+                        }
+                    }
+
+                    Text {
+                        id: commentText
+                        wrapMode: Text.WordWrap
+                        text: markup
+                        width: commentBody.width - units.gu(1.5)
+                        textFormat: Qt.RichText
+                        onLinkActivated: Qt.openUrlExternally(link)
+                    }
                 }
             }
         }
@@ -64,7 +95,7 @@ Page {
 
     function loadThread(story_id, title, url, kids) {
         pageTitle = title
-        url = url
+        pageUrl = url
         loadKids(story_id, kids, 0)
     }
 
@@ -74,7 +105,6 @@ Page {
             listModel.clear()
         }
 
-        console.log("Loading thread", thread_id, depth)
         var insertPosition = indexOfComment(thread_id) + 1
 
         for (var k in kids) {
@@ -82,12 +112,13 @@ Page {
                                  "depth": depth,
                                  "thread_id": thread_id.toString(),
                                  "markup": "...",
-                                 "comment_id": kids[k].toString()
+                                 "comment_id": kids[k].toString(),
+                                 "user": "..",
+                                 "age": ""
                              })
             insertPosition += 1
         }
         for (k in kids) {
-            console.log("Loading kid", kids[k])
             python.call("example.get_comment_and_submit",
                         [thread_id, kids[k], depth], function () {})
         }

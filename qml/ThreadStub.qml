@@ -40,6 +40,7 @@ Item {
                 Text {
                     Layout.leftMargin: units.gu(1.2)
                     Layout.alignment: Qt.AlignBottom
+
                     text: t_url
                     color: '#888'
                 }

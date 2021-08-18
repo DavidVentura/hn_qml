@@ -1,6 +1,7 @@
 import QtQuick 2.7
 import Ubuntu.Components 1.3
 import io.thp.pyotherside 1.3
+import ".."
 
 Page {
     id: newsPage
@@ -39,7 +40,7 @@ Page {
         id: python
 
         Component.onCompleted: {
-            addImportPath(Qt.resolvedUrl('../src/'))
+            addImportPath(Qt.resolvedUrl('../../src/'))
             importModule('example', function () {
                 python.call('example.top_stories', [], function (result) {
                     for (var i = 0; i < result.length; i++) {
@@ -50,7 +51,6 @@ Page {
             setHandler('comment-pop',
                        function () {}) // this is handled in ThreadView.qml
             setHandler('thread-pop', function (id, data) {
-                console.log('thread pop')
                 for (var i = 0; i < listModel.count; i++) {
                     var item = listModel.get(i)
                     if (item.story_id !== id) {

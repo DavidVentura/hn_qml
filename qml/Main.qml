@@ -20,6 +20,7 @@ import QtQuick.Controls 2.7
 import Ubuntu.Components 1.3
 import QtQuick.Layouts 1.3
 import Qt.labs.settings 1.0
+import "./pages"
 
 MainView {
     id: root
