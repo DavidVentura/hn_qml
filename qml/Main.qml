@@ -36,15 +36,15 @@ MainView {
 
         Component.onCompleted: {
             addImportPath(Qt.resolvedUrl('../src/'))
-            console.log(pythonVersion())
             importModule('example', function () {
-                console.log('module imported')
                 python.call('example.top_stories', [], function (result) {
                     for (var i = 0; i < result.length; i++) {
                         listModel.append(result[i])
                     }
                 })
             })
+            setHandler('comment-pop',
+                       function () {}) // this is handled in ThreadView.qml
             setHandler('thread-pop', function (id, data) {
                 for (var i = 0; i < listModel.count; i++) {
                     var item = listModel.get(i)
@@ -65,7 +65,7 @@ MainView {
         onError: {
             console.log('python error: ' + traceback)
         }
-        onReceived: console.log('Event' + data)
+        onReceived: console.log('Main-Event' + data)
     }
     Page {
         anchors.fill: parent

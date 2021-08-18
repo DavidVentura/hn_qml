@@ -65,19 +65,16 @@ Item {
             insertPosition += 1
         }
         for (k in kids) {
-
             console.log("Loading kid", kids[k])
-            python.call("example.get_comment", [thread_id, kids[k]],
-                        function (comment) {
-                            // console.log("Got kid", comment.comment_id, "grandkids", comment.kids)
-
-                            //console.log(JSON.stringify(comment))
-                            updateComment(comment)
-
-                            loadThread(comment.comment_id, comment.kids,
-                                       depth + 1)
-                        })
+            python.call("example.get_comment_and_submit",
+                        [thread_id, kids[k], depth], function () {})
         }
+    }
+    function populateComment(comment) {
+        // console.log("Got kid", comment.comment_id, "grandkids", comment.kids)
+        //console.log(JSON.stringify(comment))
+        updateComment(comment)
+        loadThread(comment.comment_id, comment.kids, comment.depth + 1)
     }
 
     function indexOfComment(comment_id) {
@@ -100,6 +97,7 @@ Item {
         Component.onCompleted: {
 
             //addImportPath(Qt.resolvedUrl('../src/'))
+            setHandler('comment-pop', populateComment)
         }
     }
 }

@@ -13,7 +13,7 @@ import pyotherside
 
 session = requests.Session()
 
-BG_TASKS = ThreadPoolExecutor(max_workers=3)
+BG_TASKS = ThreadPoolExecutor(max_workers=4)
 
 Comment = NamedTuple(
     "Comment",
@@ -26,6 +26,7 @@ Comment = NamedTuple(
         ("dead", bool),
         ("deleted", bool),
         ("age", str),
+        ("depth", int),
     ],
 )
 Story = NamedTuple(
@@ -46,6 +47,7 @@ def fetch_and_signal(_id):
     data = get_story(_id)
     time.sleep(0.01)
     pyotherside.send("thread-pop", _id, data._asdict())
+
 
 
 def top_stories():
@@ -113,8 +115,13 @@ def _to_relative_time(tstamp):
     delta /= 365
     return str(int(delta)) + 'y ago'
 
+def get_comment_and_submit(parent_id, _id, depth) -> None:
+    def f(parent_id, _id, depth):
+        comment = get_comment(parent_id, _id, depth)
+        pyotherside.send('comment-pop', comment)
+    BG_TASKS.submit(f, parent_id, _id, depth)
 
-def get_comment(parent_id, _id) -> Comment:
+def get_comment(parent_id, _id, depth) -> Comment:
     raw_data = get_id(_id)
     deleted = False
     dead = False
@@ -133,4 +140,6 @@ def get_comment(parent_id, _id) -> Comment:
     dead = raw_data.get("dead", False)
     kids = raw_data.get("kids", [])
 
-    return Comment(parent_id=str(parent_id), comment_id=str(_id), user=user, markup=markup, kids=[str(k) for k in kids], dead=dead, deleted=deleted, age=age)._asdict()
+    return Comment(parent_id=str(parent_id), comment_id=str(_id), user=user,
+                   markup=markup, kids=[str(k) for k in kids],
+                   dead=dead, deleted=deleted, age=age, depth=depth)._asdict()
