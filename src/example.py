@@ -29,6 +29,7 @@ Comment = NamedTuple(
         ("deleted", bool),
         ("age", str),
         ("depth", int),
+        ("threadVisible", bool),
     ],
 )
 Story = NamedTuple(
@@ -142,7 +143,8 @@ def get_comment(parent_id, _id, depth) -> Comment:
 
     return Comment(parent_id=str(parent_id), comment_id=str(_id), user=user,
                    markup=markup, kids=[str(k) for k in kids],
-                   dead=dead, deleted=deleted, age=age, depth=depth)._asdict()
+                   dead=dead, deleted=deleted, age=age, depth=depth,
+                   threadVisible=True)._asdict()
 
 def _to_relative_time(tstamp):
    now = time.time()

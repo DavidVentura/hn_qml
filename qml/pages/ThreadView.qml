@@ -38,55 +38,84 @@ Page {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-        spacing: units.gu(0.3)
         model: ListModel {
             id: listModel
         }
 
-        delegate: Row {
-            id: comment
-            anchors.leftMargin: depth * units.gu(0.5)
+        delegate: Column {
             anchors.left: parent.left
             anchors.right: parent.right
-
-            Rectangle {
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-                width: units.gu(0.3)
-                color: barColor[depth % 8]
+            height: threadVisible ? childrenRect.height : 0
+            Behavior on height {
+                NumberAnimation {
+                    duration: 200
+                }
             }
+            // this is instead of using spacing on the ListView
+            // so that when items are hidden, the spacing also goes away
             Rectangle {
-                id: commentBody
-                width: parent.width
-                height: childrenRect.height
-                color: '#f6f6ef'
-                Column {
-                    padding: units.gu(1)
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: units.gu(0.3)
+                color: 'white'
+            }
+            Row {
+                id: comment
+                anchors.leftMargin: depth * units.gu(0.5)
+                anchors.left: parent.left
+                anchors.right: parent.right
 
-                    Row {
-                        id: commentHeader
-                        bottomPadding: units.gu(1.2)
-                        Text {
-                            text: age
-                            font.pointSize: units.gu(0.9)
-                            color: '#999'
-                        }
-                        Text {
-                            leftPadding: units.gu(0.8)
-                            text: user
-                            font.pointSize: units.gu(0.9)
-                            font.bold: true
-                            color: barColor[depth % 8]
-                        }
-                    }
+                Rectangle {
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    width: units.gu(0.3)
+                    color: barColor[depth % 8]
+                }
+                Rectangle {
+                    id: commentBody
+                    width: parent.width
+                    height: childrenRect.height
+                    color: '#f6f6ef'
+                    Column {
+                        padding: units.gu(1)
 
-                    Text {
-                        id: commentText
-                        wrapMode: Text.WordWrap
-                        text: markup
-                        width: commentBody.width - units.gu(1.5)
-                        textFormat: Qt.RichText
-                        onLinkActivated: Qt.openUrlExternally(link)
+                        Row {
+                            id: commentHeader
+                            bottomPadding: units.gu(1.2)
+                            Text {
+                                text: age
+                                font.pointSize: units.gu(0.9)
+                                color: '#999'
+                            }
+                            Text {
+                                leftPadding: units.gu(0.8)
+                                text: user
+                                font.pointSize: units.gu(0.9)
+                                font.bold: true
+                                color: barColor[depth % 8]
+                            }
+                        }
+
+                        Text {
+                            id: commentText
+                            wrapMode: Text.WordWrap
+                            text: markup
+                            width: commentBody.width - units.gu(1.5)
+                            textFormat: Qt.RichText
+                            onLinkActivated: Qt.openUrlExternally(link)
+                        }
+                        Rectangle {
+                            visible: kids.count > 0
+                            width: commentBody.width
+                            height: 20
+                            color: 'red'
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    toggleChildCommentsVisibility(comment_id)
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -114,7 +143,9 @@ Page {
                                  "markup": "...",
                                  "comment_id": kids[k].toString(),
                                  "user": "..",
-                                 "age": ""
+                                 "age": "",
+                                 "kids": [],
+                                 "threadVisible": true
                              })
             insertPosition += 1
         }
@@ -140,6 +171,16 @@ Page {
     function updateComment(comment) {
         const idx = indexOfComment(comment.comment_id)
         listModel.set(idx, comment)
+    }
+
+    function toggleChildCommentsVisibility(comment_id) {
+        for (var i = 0; i < listModel.count; i++) {
+            const item = listModel.get(i)
+            if (item.thread_id === comment_id) {
+                listModel.setProperty(i, "threadVisible", !item.threadVisible)
+                toggleChildCommentsVisibility(item.comment_id)
+            }
+        }
     }
 
     Python {
