@@ -2,6 +2,7 @@ import time
 import json
 import os
 import queue
+import html
 
 import requests
 
@@ -125,7 +126,7 @@ def get_comment(parent_id, _id) -> Comment:
         user = "deleted"
     else:
         # FIXME
-        markup = raw_data["text"]
+        markup = html.unescape(raw_data["text"]).replace('<p>', '<br/><br/>')
         user = raw_data["by"]
 
     age = _to_relative_time(raw_data['time'])

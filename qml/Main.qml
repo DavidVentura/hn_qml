@@ -72,6 +72,30 @@ MainView {
         header: PageHeader {
             id: pageHeader
             title: 'Top Stories'
+            //            StyleHints {
+            //                foregroundColor: UbuntuColors.orange
+            //                backgroundColor: "black"
+            //                dividerColor: UbuntuColors.slate
+            //            }
+            leadingActionBar.actions: [
+                Action {
+                    iconName: "back"
+                    text: "Back"
+                    onTriggered: {
+                        stack.pop()
+                    }
+                    visible: stack.depth > 0
+                }
+            ]
+            //            contents: Rectangle {
+            //                anchors.fill: parent
+            //                color: UbuntuColors.red
+            //                Label {
+            //                    anchors.centerIn: parent
+            //                    text: pageHeader.title
+            //                    color: "white"
+            //                }
+            //            }
         }
 
         StackView {
@@ -97,6 +121,7 @@ MainView {
                 t_comments: comment_count
                 onUrlClicked: {
                     console.log("urlclicked mainqml", url)
+                    Qt.openUrlExternally(url)
                 }
                 onThreadClicked: {
                     stack.push(threadview)

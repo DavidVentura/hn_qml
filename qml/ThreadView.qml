@@ -38,12 +38,19 @@ Item {
                     text: markup
                     padding: units.gu(1)
                     width: parent.width
+                    textFormat: Qt.RichText
+                    onLinkActivated: Qt.openUrlExternally(link)
                 }
             }
         }
     }
 
     function loadThread(thread_id, kids, depth) {
+        if (depth === 0) {
+            console.log("Unloading..")
+            listModel.clear()
+        }
+
         console.log("Loading thread", thread_id, depth)
         var insertPosition = indexOfComment(thread_id) + 1
 

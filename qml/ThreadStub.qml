@@ -11,7 +11,7 @@ Item {
     property int t_comments: -1
     property variant t_kids
 
-    height: units.gu(7)
+    height: units.gu(9)
     width: parent.width
 
     RowLayout {
@@ -22,12 +22,14 @@ Item {
             color: '#f6f6ef'
             Layout.fillWidth: true
             Layout.fillHeight: true
+
             ColumnLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
 
                 Text {
-                    Layout.leftMargin: units.gu(0.8)
+                    Layout.topMargin: units.gu(1)
+                    Layout.leftMargin: units.gu(1.2)
                     font.pixelSize: units.gu(1.8)
                     text: t_title
                     wrapMode: Text.WordWrap
@@ -36,7 +38,7 @@ Item {
                     Layout.preferredWidth: parent.parent.width * 0.95
                 }
                 Text {
-                    Layout.leftMargin: units.gu(0.8)
+                    Layout.leftMargin: units.gu(1.2)
                     Layout.alignment: Qt.AlignBottom
                     text: t_url
                     color: '#888'
