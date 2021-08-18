@@ -4,8 +4,8 @@ Reader for [Hacker News](https://news.ycombinator.com/).
 
 Written in QML/python.
 
-![](https://github.com/davidventura/hnr/blob/master/screenshots/main.png?raw=true)
-![](https://github.com/davidventura/hnr/blob/master/screenshots/thread.png?raw=true)
+![](https://github.com/davidventura/hn_qml/blob/master/screenshots/main.png?raw=true)
+![](https://github.com/davidventura/hn_qml/blob/master/screenshots/thread.png?raw=true)
 
 # Todo
 
