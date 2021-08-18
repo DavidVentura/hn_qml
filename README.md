@@ -1,14 +1,16 @@
-# App Title
+# HN Reader
 
-A short description of your app
+Reader for [Hacker News](https://news.ycombinator.com/).
 
-## License
+Written in QML/python.
 
-Copyright (C) 2021  David Ventura
+![](https://github.com/davidventura/hnr/blob/master/screenshots/main.png?raw=true)
+![](https://github.com/davidventura/hnr/blob/master/screenshots/thread.png?raw=true)
 
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3, as published
-by the Free Software Foundation.
+# Todo
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranties of MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
+- Comment tree toggling
+- Pull to refresh
+- Navigation with volume buttons
+- Authentication
+- Up-voting
