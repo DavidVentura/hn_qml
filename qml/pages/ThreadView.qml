@@ -3,13 +3,30 @@ import QtQuick.Layouts 1.12
 import io.thp.pyotherside 1.5
 import Ubuntu.Components 1.3
 
-Item {
+Page {
     property variant barColor: ['#f44336', '#d500f9', '#304ffe', '#0288d1', '#26A69A', '#00c853', '#fff3e0', '#8d6e63']
+    property string pageTitle: '..'
+    header: PageHeader {
+        id: header
+        title: pageTitle
+        leadingActionBar.actions: [
+            Action {
+                iconName: "back"
+                text: "Back"
+                onTriggered: {
+                    stack.pop()
+                }
+            }
+        ]
+    }
 
     ListView {
         anchors.leftMargin: units.gu(0.5)
         anchors.rightMargin: units.gu(0.5)
-        anchors.fill: parent
+        anchors.top: header.bottom
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
         spacing: units.gu(0.3)
         model: ListModel {
             id: listModel
@@ -45,7 +62,13 @@ Item {
         }
     }
 
-    function loadThread(thread_id, kids, depth) {
+    function loadThread(story_id, title, url, kids) {
+        pageTitle = title
+        url = url
+        loadKids(story_id, kids, 0)
+    }
+
+    function loadKids(thread_id, kids, depth) {
         if (depth === 0) {
             console.log("Unloading..")
             listModel.clear()
@@ -55,7 +78,6 @@ Item {
         var insertPosition = indexOfComment(thread_id) + 1
 
         for (var k in kids) {
-            //console.log("For", kids[k], 'child of', thread_id, 'position is', insertPosition)
             listModel.insert(insertPosition, {
                                  "depth": depth,
                                  "thread_id": thread_id.toString(),
@@ -71,10 +93,8 @@ Item {
         }
     }
     function populateComment(comment) {
-        // console.log("Got kid", comment.comment_id, "grandkids", comment.kids)
-        //console.log(JSON.stringify(comment))
         updateComment(comment)
-        loadThread(comment.comment_id, comment.kids, comment.depth + 1)
+        loadKids(comment.comment_id, comment.kids, comment.depth + 1)
     }
 
     function indexOfComment(comment_id) {

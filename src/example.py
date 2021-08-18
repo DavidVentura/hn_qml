@@ -14,7 +14,7 @@ from concurrent.futures import ThreadPoolExecutor
 import pyotherside
 
 session = requests.Session()
-
+NUM_BG_THREADS = 3
 q = []
 
 Comment = NamedTuple(
@@ -47,12 +47,6 @@ Story = NamedTuple(
 def work(prio, f, *args):
     heappush(q, (prio, f, args))
 
-def fetch_and_signal(_id):
-    data = get_story(_id)
-    time.sleep(0.05)
-    pyotherside.send("thread-pop", _id, data._asdict())
-
-
 def do_work():
     while True:
         if len(q) == 0:
@@ -61,10 +55,15 @@ def do_work():
         prio, f, args = heappop(q)
         f(*args)
 
-for i in range(3):
+for i in range(NUM_BG_THREADS):
     t = threading.Thread(target=do_work)
     t.daemon = True
     t.start()
+
+def fetch_and_signal(_id):
+    data = get_story(_id)
+    time.sleep(0.05)
+    pyotherside.send("thread-pop", _id, data._asdict())
 
 def top_stories():
     if os.path.exists("topstories.json"):
@@ -114,26 +113,6 @@ def get_story(_id) -> Story:
     )
 
 
-def _to_relative_time(tstamp):
-    now = time.time()
-    delta = now - tstamp
-    if delta < 0:
-        return 'in the future'
-
-    if delta < 60:
-        return str(delta) + 's ago'
-    delta /= 60
-    if delta < 60:
-        return str(int(delta)) + 'm ago'
-    delta /= 60
-    if delta < 24:
-        return str(int(delta)) + 'h ago'
-    delta /= 24
-    if delta < 365:
-        return str(int(delta)) + 'd ago'
-    delta /= 365
-    return str(int(delta)) + 'y ago'
-
 def get_comment_and_submit(parent_id, _id, depth) -> None:
     def f(parent_id, _id, depth):
         comment = get_comment(parent_id, _id, depth)
@@ -164,3 +143,23 @@ def get_comment(parent_id, _id, depth) -> Comment:
     return Comment(parent_id=str(parent_id), comment_id=str(_id), user=user,
                    markup=markup, kids=[str(k) for k in kids],
                    dead=dead, deleted=deleted, age=age, depth=depth)._asdict()
+
+def _to_relative_time(tstamp):
+   now = time.time()
+   delta = now - tstamp
+   if delta < 0:
+       return 'in the future'
+
+   if delta < 60:
+       return str(delta) + 's ago'
+   delta /= 60
+   if delta < 60:
+       return str(int(delta)) + 'm ago'
+   delta /= 60
+   if delta < 24:
+       return str(int(delta)) + 'h ago'
+   delta /= 24
+   if delta < 365:
+       return str(int(delta)) + 'd ago'
+   delta /= 365
+   return str(int(delta)) + 'y ago'
