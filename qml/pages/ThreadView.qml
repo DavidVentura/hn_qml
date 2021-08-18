@@ -46,9 +46,10 @@ Page {
             anchors.left: parent.left
             anchors.right: parent.right
             height: threadVisible ? childrenRect.height : 0
+            visible: threadVisible
             Behavior on height {
                 NumberAnimation {
-                    duration: 200
+                    duration: 0
                 }
             }
             // this is instead of using spacing on the ListView
@@ -106,9 +107,9 @@ Page {
                         }
                         Rectangle {
                             visible: kids.count > 0
-                            width: commentBody.width
-                            height: 20
-                            color: 'red'
+                            width: commentBody.width - units.gu(1.5)
+                            height: units.gu(2.5)
+                            color: 'transparent'
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: {
