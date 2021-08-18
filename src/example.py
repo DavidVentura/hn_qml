@@ -3,9 +3,11 @@ import json
 import os
 import queue
 import html
+import threading
 
 import requests
 
+from heapq import heappush, heappop
 from typing import List, NamedTuple
 from concurrent.futures import ThreadPoolExecutor
 
@@ -13,7 +15,7 @@ import pyotherside
 
 session = requests.Session()
 
-BG_TASKS = ThreadPoolExecutor(max_workers=4)
+q = []
 
 Comment = NamedTuple(
     "Comment",
@@ -42,13 +44,27 @@ Story = NamedTuple(
     ],
 )
 
+def work(prio, f, *args):
+    heappush(q, (prio, f, args))
 
 def fetch_and_signal(_id):
     data = get_story(_id)
-    time.sleep(0.01)
+    time.sleep(0.05)
     pyotherside.send("thread-pop", _id, data._asdict())
 
 
+def do_work():
+    while True:
+        if len(q) == 0:
+            time.sleep(0.1)
+            continue
+        prio, f, args = heappop(q)
+        f(*args)
+
+for i in range(3):
+    t = threading.Thread(target=do_work)
+    t.daemon = True
+    t.start()
 
 def top_stories():
     if os.path.exists("topstories.json"):
@@ -59,11 +75,14 @@ def top_stories():
         #    fd.write(r.text)
         data = r.json()
 
+    data = data[:50]
+    idx = 0
     for _id in data:
-        BG_TASKS.submit(fetch_and_signal, _id)
+        work((99, idx), fetch_and_signal, _id)
+        idx += 1
     return [
         Story(story_id=i, title="", url="", url_domain="?", kids='', comment_count=0, score=0)._asdict()
-        for i in data[:50]
+        for i in data
     ]
 
 
@@ -119,7 +138,9 @@ def get_comment_and_submit(parent_id, _id, depth) -> None:
     def f(parent_id, _id, depth):
         comment = get_comment(parent_id, _id, depth)
         pyotherside.send('comment-pop', comment)
-    BG_TASKS.submit(f, parent_id, _id, depth)
+    print('calling work from comment')
+    work((1, depth, _id), f, parent_id, _id, depth)
+
 
 def get_comment(parent_id, _id, depth) -> Comment:
     raw_data = get_id(_id)
