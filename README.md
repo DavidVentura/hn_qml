@@ -7,10 +7,18 @@ Written in QML/python.
 ![](https://github.com/davidventura/hn_qml/blob/master/screenshots/main.png?raw=true)
 ![](https://github.com/davidventura/hn_qml/blob/master/screenshots/thread.png?raw=true)
 
-# Todo
+# Features
 
 - Comment tree toggling
 - Pull to refresh
-- Navigation with volume buttons
+- Threaded fetching of comments/news items
+
+# Todo
+
 - Authentication
 - Up-voting
+
+# Abandoned plans
+
+- Navigation with volume buttons
+  - Can't disable system-wide volume pop-up, seems to be built into Lomiri, so it is too annoying to use

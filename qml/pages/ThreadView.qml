@@ -1,4 +1,4 @@
-import QtQuick 2.8
+import QtQuick 2.12
 import QtQuick.Layouts 1.12
 import io.thp.pyotherside 1.5
 import Ubuntu.Components 1.3
@@ -11,6 +11,16 @@ Page {
     property variant pageKids: []
     property bool shouldRefresh: false
 
+    Python {
+        id: python
+
+        Component.onCompleted: {
+
+            //addImportPath(Qt.resolvedUrl('../src/'))
+            setHandler('comment-pop', updateComment)
+        }
+    }
+
     header: PageHeader {
         id: header
         title: pageTitle
@@ -20,6 +30,7 @@ Page {
                 iconName: "back"
                 text: "Back"
                 onTriggered: {
+                    python.call("example.purge_queued_comments")
                     stack.pop()
                 }
             }
@@ -42,6 +53,7 @@ Page {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
+        boundsBehavior: Flickable.StopAtBounds
         model: ListModel {
             id: listModel
         }
@@ -51,6 +63,14 @@ Page {
             anchors.right: parent.right
             height: threadVisible ? childrenRect.height : 0
             visible: threadVisible
+            Component.onCompleted: {
+                if (!initialized) {
+                    initialized = true
+                    python.call("example.fetch_comment",
+                                [pageId, thread_id, comment_id, depth])
+                }
+            }
+
             Behavior on height {
                 NumberAnimation {
                     duration: 0
@@ -101,19 +121,29 @@ Page {
                             }
                         }
 
-                        Text {
+                        TextEdit {
                             id: commentText
                             wrapMode: Text.WordWrap
                             text: markup
                             width: commentBody.width - units.gu(1.5)
                             textFormat: Qt.RichText
                             onLinkActivated: Qt.openUrlExternally(link)
+                            readOnly: true
                         }
                         Rectangle {
                             visible: kids.count > 0
                             width: commentBody.width - units.gu(1.5)
                             height: units.gu(2.5)
                             color: 'transparent'
+                            Text {
+                                text: 'Tap to toggle children'
+                                color: '#aaa'
+                                anchors.fill: parent
+                                font.pointSize: units.gu(1)
+                                horizontalAlignment: Qt.AlignHCenter
+                                verticalAlignment: Qt.AlignBottom
+                            }
+
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: {
@@ -138,28 +168,33 @@ Page {
 
     function loadKids(thread_id, kids, depth) {
         var insertPosition = indexOfComment(thread_id) + 1
+        var kid_ids = []
+        var i
+        if ((kids + "").startsWith('QQmlListModel')) {
+            for (i = 0; i < kids.count; i++) {
+                kid_ids.push(kids.get(i).id)
+            }
+        } else {
+            kid_ids = kids.map(function (x) {
+                return x.id
+            })
+        }
 
-        for (var k in kids) {
+        for (i in kid_ids) {
+
             listModel.insert(insertPosition, {
                                  "depth": depth,
                                  "thread_id": thread_id.toString(),
                                  "markup": "...",
-                                 "comment_id": kids[k].toString(),
+                                 "comment_id": kid_ids[i].toString(),
                                  "user": "..",
                                  "age": "",
                                  "kids": [],
-                                 "threadVisible": true
+                                 "threadVisible": true,
+                                 "initialized": false
                              })
             insertPosition += 1
         }
-        for (k in kids) {
-            python.call("example.get_comment_and_submit",
-                        [thread_id, kids[k], depth], function () {})
-        }
-    }
-    function populateComment(comment) {
-        updateComment(comment)
-        loadKids(comment.comment_id, comment.kids, comment.depth + 1)
     }
 
     function indexOfComment(comment_id) {
@@ -174,25 +209,20 @@ Page {
     function updateComment(comment) {
         const idx = indexOfComment(comment.comment_id)
         listModel.set(idx, comment)
+
+        loadKids(comment.comment_id, comment.kids, comment.depth + 1)
     }
 
     function toggleChildCommentsVisibility(comment_id) {
+
+        // FIXME: buggy -- when hiding, more children can appear and make the status super wonky
+        // Need to move the full model status to python to keep the comment tree updated
         for (var i = 0; i < listModel.count; i++) {
             const item = listModel.get(i)
-            if (item.thread_id === comment_id) {
+            if (item.parent_id === comment_id) {
                 listModel.setProperty(i, "threadVisible", !item.threadVisible)
                 toggleChildCommentsVisibility(item.comment_id)
             }
-        }
-    }
-
-    Python {
-        id: python
-
-        Component.onCompleted: {
-
-            //addImportPath(Qt.resolvedUrl('../src/'))
-            setHandler('comment-pop', populateComment)
         }
     }
 }

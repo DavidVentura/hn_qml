@@ -49,18 +49,24 @@ Page {
             t_title: title
             t_url: url_domain
             t_comments: comment_count
+            Component.onCompleted: {
+                if (!initialized) {
+                    initialized = true
+                    python.call("example.bg_fetch_story", [story_id])
+                }
+            }
             onUrlClicked: {
                 console.log("urlclicked mainqml", url)
                 Qt.openUrlExternally(url)
             }
             onThreadClicked: {
                 stack.push(threadview)
-                threadview.loadThread(story_id, title, url, kids.split(','))
+
+                threadview.loadThread(story_id, title, url, kids)
                 threadview.visible = true
             }
         }
     }
-    function f() {}
 
     function loadStories() {
         listModel.clear()
@@ -92,7 +98,7 @@ Page {
                     item.url_domain = data.url_domain
                     item.url = data.url
                     item.comment_count = data.comment_count
-                    item.kids = data.kids.join(',')
+                    item.kids = data.kids //.join(',')
                     break
                 }
             })

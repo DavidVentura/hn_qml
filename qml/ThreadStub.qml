@@ -11,7 +11,7 @@ Item {
     property int t_comments: -1
     property variant t_kids
 
-    height: units.gu(9)
+    height: units.gu(8.5)
     width: parent.width
 
     RowLayout {
