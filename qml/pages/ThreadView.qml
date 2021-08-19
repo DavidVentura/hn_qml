@@ -15,8 +15,6 @@ Page {
         id: python
 
         Component.onCompleted: {
-
-            //addImportPath(Qt.resolvedUrl('../src/'))
             setHandler('comment-pop', updateComment)
         }
     }
@@ -54,6 +52,7 @@ Page {
         anchors.left: parent.left
         anchors.right: parent.right
         boundsBehavior: Flickable.StopAtBounds
+        cacheBuffer: height / 2
         model: ListModel {
             id: listModel
         }
@@ -63,19 +62,22 @@ Page {
             anchors.right: parent.right
             height: threadVisible ? childrenRect.height : 0
             visible: threadVisible
+
             Component.onCompleted: {
-                if (!initialized) {
+                if (!initialized && threadVisible) {
                     initialized = true
                     python.call("example.fetch_comment",
                                 [pageId, thread_id, comment_id, depth])
                 }
             }
 
-            Behavior on height {
-                NumberAnimation {
-                    duration: 0
-                }
-            }
+            //            Behavior on height {
+            //                NumberAnimation {
+            //                    duration: 100
+            //                }
+            //            }
+            // animation is fairly wonky
+
             // this is instead of using spacing on the ListView
             // so that when items are hidden, the spacing also goes away
             Rectangle {
@@ -129,6 +131,8 @@ Page {
                             textFormat: Qt.RichText
                             onLinkActivated: Qt.openUrlExternally(link)
                             readOnly: true
+                            // selectByMouse: true
+                            // this completely breaks touch!
                         }
                         Rectangle {
                             visible: kids.count > 0
@@ -136,7 +140,7 @@ Page {
                             height: units.gu(2.5)
                             color: 'transparent'
                             Text {
-                                text: 'Tap to toggle children'
+                                text: 'Tap to toggle replies'
                                 color: '#aaa'
                                 anchors.fill: parent
                                 font.pointSize: units.gu(1)
@@ -215,13 +219,20 @@ Page {
 
     function toggleChildCommentsVisibility(comment_id) {
 
-        // FIXME: buggy -- when hiding, more children can appear and make the status super wonky
-        // Need to move the full model status to python to keep the comment tree updated
+        let depth = 0
         for (var i = 0; i < listModel.count; i++) {
             const item = listModel.get(i)
+            if (item.depth < depth)
+                break
+
             if (item.parent_id === comment_id) {
+                if (depth === 0) {
+                    depth = item.depth
+                    console.log(depth)
+                }
+            }
+            if (depth) {
                 listModel.setProperty(i, "threadVisible", !item.threadVisible)
-                toggleChildCommentsVisibility(item.comment_id)
             }
         }
     }
