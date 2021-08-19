@@ -1,4 +1,4 @@
-import QtQuick 2.7
+import QtQuick 2.8
 import QtQuick.Layouts 1.12
 import io.thp.pyotherside 1.5
 import Ubuntu.Components 1.3
@@ -7,6 +7,10 @@ Page {
     property variant barColor: ['#f44336', '#d500f9', '#304ffe', '#0288d1', '#26A69A', '#00c853', '#fff3e0', '#8d6e63']
     property string pageTitle: '..'
     property string pageUrl: 'http://example.com'
+    property int pageId
+    property variant pageKids: []
+    property bool shouldRefresh: false
+
     header: PageHeader {
         id: header
         title: pageTitle
@@ -126,15 +130,13 @@ Page {
     function loadThread(story_id, title, url, kids) {
         pageTitle = title
         pageUrl = url
+        pageId = story_id
+        pageKids = kids
+        listModel.clear()
         loadKids(story_id, kids, 0)
     }
 
     function loadKids(thread_id, kids, depth) {
-        if (depth === 0) {
-            console.log("Unloading..")
-            listModel.clear()
-        }
-
         var insertPosition = indexOfComment(thread_id) + 1
 
         for (var k in kids) {
