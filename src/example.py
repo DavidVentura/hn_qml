@@ -60,7 +60,7 @@ def do_work():
             t = thread_q.get()
             fetch_and_signal(t)
             continue
-        time.sleep(0.1)
+        time.sleep(0.05)
 
 for i in range(NUM_BG_THREADS):
     t = threading.Thread(target=do_work)
@@ -69,7 +69,6 @@ for i in range(NUM_BG_THREADS):
 
 def fetch_and_signal(_id):
     data = get_story(_id)
-    time.sleep(0.05)
     pyotherside.send("thread-pop", _id, data._asdict())
 
 def top_stories():
@@ -77,22 +76,17 @@ def top_stories():
         data = json.load(open("topstories.json"))
     else:
         r = session.get("https://hacker-news.firebaseio.com/v0/topstories.json")
-        #with open("topstories.json", "w") as fd:
-        #    fd.write(r.text)
         data = r.json()
 
     return [
-        Story(story_id=str(i), title="", url="", url_domain="?", kids=[], comment_count=0, score=0, initialized=False)._asdict()
+        Story(story_id=str(i), title="..", url="", url_domain="..", kids=[], comment_count=0, score=0, initialized=False)._asdict()
         for i in data
     ]
 
 
 def get_id(_id):
     _id = str(_id)
-    if os.path.exists(_id + ".json"):
-        return json.load(open(_id + ".json"))
     r = session.get("https://hacker-news.firebaseio.com/v0/item/" + _id + ".json")
-    #open(_id + ".json", "w").write(r.text)
     data = r.json()
     return data
 
@@ -114,8 +108,9 @@ def get_story(_id) -> Story:
 
     THREAD_CACHE[_id] = {}
     return Story(
-        story_id=_id, title=title, url=url, url_domain=url_domain, kids=[{"id": str(k)} for k in kids], comment_count=comment_count, score=score,
-        initialized=True,
+        story_id=_id, title=title, url=url, url_domain=url_domain,
+        kids=[{"id": str(k)} for k in kids], comment_count=comment_count,
+        score=score, initialized=True,
     )
 
 
