@@ -12,6 +12,7 @@ Written in QML/python.
 - Comment tree toggling
 - Pull to refresh
 - Threaded fetching of comments/news items
+- Share comment link/text
 
 # Todo
 
