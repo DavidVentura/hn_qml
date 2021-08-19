@@ -118,7 +118,6 @@ Page {
                             id: commentHeader
                             width: parent.parent.width - parent.padding
                             spacing: 0
-                            //bottomPadding: units.gu(1.1)
                             Text {
                                 text: age
                                 font.pointSize: units.gu(1)
@@ -205,6 +204,7 @@ Page {
                             textFormat: Qt.RichText
                             onLinkActivated: Qt.openUrlExternally(link)
                             readOnly: true
+                            topPadding: units.gu(1)
                             // selectByMouse: true
                             // this completely breaks touch!
                         }
@@ -302,7 +302,6 @@ Page {
             if (item.parent_id === comment_id) {
                 if (depth === 0) {
                     depth = item.depth
-                    console.log(depth)
                 }
             }
             if (depth) {
