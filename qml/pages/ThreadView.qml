@@ -1,7 +1,11 @@
 import QtQuick 2.12
+import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.12
 import io.thp.pyotherside 1.5
 import Ubuntu.Components 1.3
+import QtQuick.Controls.Suru 2.2
+import QtGraphicalEffects 1.0
+import "../components"
 
 Page {
     property variant barColor: ['#f44336', '#d500f9', '#304ffe', '#0288d1', '#26A69A', '#00c853', '#fff3e0', '#8d6e63']
@@ -42,6 +46,10 @@ Page {
                 }
             }
         ]
+    }
+
+    SharePage {
+        id: sharer
     }
 
     ListView {
@@ -106,20 +114,86 @@ Page {
                     Column {
                         padding: units.gu(1)
 
-                        Row {
+                        RowLayout {
                             id: commentHeader
-                            bottomPadding: units.gu(1.2)
+                            width: parent.parent.width - parent.padding
+                            spacing: 0
+                            //bottomPadding: units.gu(1.1)
                             Text {
                                 text: age
-                                font.pointSize: units.gu(0.9)
+                                font.pointSize: units.gu(1)
                                 color: '#999'
                             }
                             Text {
                                 leftPadding: units.gu(0.8)
                                 text: user
-                                font.pointSize: units.gu(0.9)
+                                font.pointSize: units.gu(1)
                                 font.bold: true
                                 color: barColor[depth % 8]
+                            }
+
+                            Rectangle {
+                                // filler
+                                Layout.fillWidth: true
+                            }
+
+                            Item {
+                                Layout.minimumWidth: units.gu(2)
+                                height: units.gu(2.2)
+
+                                Image {
+                                    source: "../../assets/options.svg"
+                                    anchors.fill: parent
+                                    asynchronous: true
+                                    cache: true
+                                    fillMode: Image.PreserveAspectFit
+                                    Menu {
+                                        id: menu
+                                        width: units.gu(20)
+
+                                        background: Rectangle {
+                                            id: bgRectangle
+
+                                            layer.enabled: true
+                                            layer.effect: DropShadow {
+                                                width: bgRectangle.width
+                                                height: bgRectangle.height
+                                                x: bgRectangle.x
+                                                y: bgRectangle.y
+                                                visible: bgRectangle.visible
+
+                                                source: bgRectangle
+
+                                                horizontalOffset: 0
+                                                verticalOffset: 5
+                                                radius: 10
+                                                samples: 20
+                                                color: "#999"
+                                            }
+                                        }
+
+                                        MenuPanelItem {
+                                            iconName: "share"
+                                            label: i18n.tr("Share Link")
+                                            onTriggered: {
+                                                sharer.content = "https://news.ycombinator.com/item?id=" + comment_id
+                                                stack.push(sharer)
+                                            }
+                                        }
+                                        MenuPanelItem {
+                                            iconName: "share"
+                                            label: i18n.tr("Share Text")
+                                            onTriggered: {
+                                                sharer.content = markup
+                                                stack.push(sharer)
+                                            }
+                                        }
+                                    }
+                                }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: menu.open()
+                                }
                             }
                         }
 
