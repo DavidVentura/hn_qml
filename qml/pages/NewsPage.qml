@@ -17,6 +17,7 @@ Page {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
+        cacheBuffer: height / 2
 
         header: Text {
             id: refreshLabel
@@ -98,7 +99,7 @@ Page {
                     item.url_domain = data.url_domain
                     item.url = data.url
                     item.comment_count = data.comment_count
-                    item.kids = data.kids //.join(',')
+                    item.kids = data.kids
                     break
                 }
             })
