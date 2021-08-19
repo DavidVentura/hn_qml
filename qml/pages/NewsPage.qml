@@ -1,4 +1,4 @@
-import QtQuick 2.7
+import QtQuick 2.8
 import Ubuntu.Components 1.3
 import io.thp.pyotherside 1.3
 import ".."
@@ -11,11 +11,35 @@ Page {
         title: 'Top Stories'
     }
     ListView {
+        id: mylv
         spacing: 1
-        anchors.top: pageHeader.bottom
+        anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
+
+        header: Text {
+            id: refreshLabel
+            text: "Drag to refresh"
+            height: pageHeader.height
+        }
+        onContentYChanged: {
+            if (contentY >= 0)
+                return
+            if (contentY < -units.gu(18)) {
+                headerItem.text = "Release to refresh"
+            } else if (contentY >= -units.gu(18)) {
+                headerItem.text = "Drag to refresh"
+            }
+        }
+        onDragEnded: {
+
+            if (contentY < -units.gu(18)) {
+                headerItem.text = "Drag to refresh"
+                loadStories()
+            }
+        }
+
         model: ListModel {
             id: listModel
         }
@@ -36,17 +60,24 @@ Page {
             }
         }
     }
+    function f() {}
+
+    function loadStories() {
+        listModel.clear()
+        python.call('example.top_stories', [], function (result) {
+            for (var i = 0; i < result.length; i++) {
+                listModel.append(result[i])
+            }
+        })
+    }
+
     Python {
         id: python
 
         Component.onCompleted: {
             addImportPath(Qt.resolvedUrl('../../src/'))
             importModule('example', function () {
-                python.call('example.top_stories', [], function (result) {
-                    for (var i = 0; i < result.length; i++) {
-                        listModel.append(result[i])
-                    }
-                })
+                loadStories()
             })
             setHandler('comment-pop',
                        function () {}) // this is handled in ThreadView.qml
