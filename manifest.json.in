@@ -6,7 +6,8 @@
     "hooks": {
         "hnr": {
             "apparmor": "hnr.apparmor",
-            "desktop":  "hnr.desktop"
+            "desktop":  "hnr.desktop",
+            "content-hub": "content-hub.json"
         }
     },
     "version": "1.0.0",
