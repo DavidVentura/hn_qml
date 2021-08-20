@@ -3,8 +3,8 @@ import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.12
 import io.thp.pyotherside 1.5
 import Ubuntu.Components 1.3
-import QtQuick.Controls.Suru 2.2
 import QtGraphicalEffects 1.0
+
 import "../components"
 
 Page {

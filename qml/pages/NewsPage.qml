@@ -1,4 +1,6 @@
-import QtQuick 2.8
+import QtQuick 2.12
+import QtQuick.Shapes 1.12
+import QtGraphicalEffects 1.12
 import Ubuntu.Components 1.3
 import io.thp.pyotherside 1.3
 import ".."
@@ -9,7 +11,44 @@ Page {
     header: PageHeader {
         id: pageHeader
         title: 'Top Stories'
+        z: 3
     }
+
+    Rectangle {
+
+        id: spin
+        x: parent.width / 2 - width / 2
+        y: {
+            if (mylv.verticalOvershoot >= -units.gu(15)) {
+                return -1.5 * mylv.verticalOvershoot
+            }
+            return units.gu(1.5 * 15)
+        }
+        width: units.gu(5)
+        height: units.gu(5)
+        z: 2
+        color: 'white'
+        rotation: mylv.verticalOvershoot * -2
+        radius: units.gu(5)
+
+        layer.enabled: true
+        layer.effect: DropShadow {
+            width: spin.width
+            height: spin.height
+            x: spin.x
+            y: spin.y
+            visible: spin.visible
+
+            source: spin
+
+            horizontalOffset: 0
+            verticalOffset: 0
+            radius: 10
+            samples: 20
+            color: "#999"
+        }
+    }
+
     ListView {
         id: mylv
         spacing: 1
@@ -18,6 +57,8 @@ Page {
         anchors.left: parent.left
         anchors.right: parent.right
         cacheBuffer: height / 2
+        boundsMovement: Flickable.StopAtBounds
+        boundsBehavior: Flickable.DragOverBounds
 
         header: Text {
             id: refreshLabel
@@ -27,15 +68,16 @@ Page {
         onContentYChanged: {
             if (contentY >= 0)
                 return
-            if (contentY < -units.gu(18)) {
+            if (contentY < -units.gu(10)) {
                 headerItem.text = "Release to refresh"
-            } else if (contentY >= -units.gu(18)) {
+            } else if (contentY >= -units.gu(10)) {
                 headerItem.text = "Drag to refresh"
             }
         }
         onDragEnded: {
+            console.log('dragended')
 
-            if (contentY < -units.gu(18)) {
+            if (contentY < -units.gu(10)) {
                 headerItem.text = "Drag to refresh"
                 loadStories()
             }
