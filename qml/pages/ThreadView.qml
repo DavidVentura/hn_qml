@@ -2,12 +2,12 @@ import QtQuick 2.12
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.12
 import io.thp.pyotherside 1.5
-import Ubuntu.Components 1.3
+import Ubuntu.Components 1.3 as UUITK
 import QtGraphicalEffects 1.0
 
 import "../components"
 
-Page {
+UUITK.Page {
     property variant barColor: ['#f44336', '#d500f9', '#304ffe', '#0288d1', '#26A69A', '#00c853', '#fff3e0', '#8d6e63']
     property string pageTitle: '..'
     property string pageUrl: 'http://example.com'
@@ -23,12 +23,12 @@ Page {
         }
     }
 
-    header: PageHeader {
+    header: UUITK.PageHeader {
         id: header
         title: pageTitle
 
         leadingActionBar.actions: [
-            Action {
+            UUITK.Action {
                 iconName: "back"
                 text: "Back"
                 onTriggered: {
@@ -38,7 +38,7 @@ Page {
             }
         ]
         trailingActionBar.actions: [
-            Action {
+            UUITK.Action {
                 iconName: "external-link"
                 text: "open in browser"
                 onTriggered: {
@@ -52,6 +52,10 @@ Page {
         id: sharer
     }
 
+    ListModel {
+        id: listModel
+    }
+
     ListView {
         anchors.leftMargin: units.gu(0.5)
         anchors.rightMargin: units.gu(0.5)
@@ -61,16 +65,14 @@ Page {
         anchors.right: parent.right
         boundsBehavior: Flickable.StopAtBounds
         cacheBuffer: height / 2
-        model: ListModel {
-            id: listModel
-        }
+        model: listModel
 
         delegate: Column {
             anchors.left: parent.left
             anchors.right: parent.right
+
             height: threadVisible ? childrenRect.height : 0
             visible: threadVisible
-
             Component.onCompleted: {
                 if (!initialized && threadVisible) {
                     initialized = true
@@ -237,7 +239,6 @@ Page {
 
     function loadThread(story_id) {
         python.call("example.get_story", [story_id], function (story) {
-            console.log(JSON.stringify(story, null, 2))
             pageTitle = story.title
             pageUrl = story.url
             pageId = story_id
@@ -249,32 +250,23 @@ Page {
 
     function loadKids(thread_id, kids, depth) {
         var insertPosition = indexOfComment(thread_id) + 1
-        var kid_ids = []
-        var i
-        if ((kids + "").startsWith('QQmlListModel')) {
-            //TODO: delete this block
-            for (i = 0; i < kids.count; i++) {
-                kid_ids.push(kids.get(i).id)
+        const kid_ids = kids.map(function (x) {
+            return x.id
+        })
+
+        for (var i in kid_ids) {
+            const item = {
+                "depth": depth,
+                "thread_id": thread_id.toString(),
+                "markup": "...",
+                "comment_id": kid_ids[i].toString(),
+                "user": "..",
+                "age": "",
+                "kids": [],
+                "threadVisible": true,
+                "initialized": false
             }
-        } else {
-            kid_ids = kids.map(function (x) {
-                return x.id
-            })
-        }
-
-        for (i in kid_ids) {
-
-            listModel.insert(insertPosition, {
-                                 "depth": depth,
-                                 "thread_id": thread_id.toString(),
-                                 "markup": "...",
-                                 "comment_id": kid_ids[i].toString(),
-                                 "user": "..",
-                                 "age": "",
-                                 "kids": [],
-                                 "threadVisible": true,
-                                 "initialized": false
-                             })
+            listModel.insert(insertPosition, item)
             insertPosition += 1
         }
     }
