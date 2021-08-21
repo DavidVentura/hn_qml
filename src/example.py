@@ -95,11 +95,22 @@ def get_domain(url):
 
 def get_story(_id) -> Story:
     _id = str(_id)
+    THREAD_CACHE[_id] = {}
+
     raw_data = get_id(_id)
-    comment_count = raw_data.get("descendants", 0)
+    if raw_data['type'] == 'comment':
+        # app is opening a link directly to a comment
+        story_id = requests.get('https://hn.algolia.com/api/v1/items/' + _id).json()['story_id']
+        story = get_story(story_id)
+        story['kids'] = [{'id': str(_id)}]
+        print(story, flush=True)
+        return story
+    else:
+        comment_count = raw_data.get("descendants", 0)
+        score = raw_data["score"]
+        title = raw_data["title"]
+
     kids = raw_data.get("kids", [])
-    score = raw_data["score"]
-    title = raw_data["title"]
 
     if raw_data.get("url"):
         url = raw_data["url"]
@@ -108,7 +119,6 @@ def get_story(_id) -> Story:
         url = "self"
         url_domain = "self"
 
-    THREAD_CACHE[_id] = {}
     return Story(
         story_id=_id, title=title, url=url, url_domain=url_domain,
         kids=[{"id": str(k)} for k in kids], comment_count=comment_count,
