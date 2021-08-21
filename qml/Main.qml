@@ -40,6 +40,12 @@ MainView {
         id: threadview
     }
     NewsPage {
+        visible: false
         id: newspage
+        searchPage: searchpage
+    }
+    SearchPage {
+        visible: false
+        id: searchpage
     }
 }

@@ -68,8 +68,7 @@ for i in range(NUM_BG_THREADS):
     t.start()
 
 def fetch_and_signal(_id):
-    data = get_story(_id)
-    pyotherside.send("thread-pop", _id, data._asdict())
+    pyotherside.send("thread-pop", _id, get_story(_id))
 
 def top_stories():
     if os.path.exists("topstories.json"):
@@ -90,6 +89,8 @@ def get_id(_id):
     data = r.json()
     return data
 
+def get_domain(url):
+    return url.split("/")[2]
 
 def get_story(_id) -> Story:
     _id = str(_id)
@@ -101,7 +102,7 @@ def get_story(_id) -> Story:
 
     if raw_data.get("url"):
         url = raw_data["url"]
-        url_domain = raw_data["url"].split("/")[2]
+        url_domain = get_domain(raw_data["url"])
     else:
         url = "self"
         url_domain = "self"
@@ -111,7 +112,7 @@ def get_story(_id) -> Story:
         story_id=_id, title=title, url=url, url_domain=url_domain,
         kids=[{"id": str(k)} for k in kids], comment_count=comment_count,
         score=score, initialized=True,
-    )
+    )._asdict()
 
 
 def bg_fetch_story(story_id):
@@ -179,3 +180,24 @@ def _to_relative_time(tstamp):
        return str(int(delta)) + 'd ago'
    delta /= 365
    return str(int(delta)) + 'y ago'
+
+def search(query, tags='story'):
+    """
+    https://hn.algolia.com/api/v1/search?query=qml&hitsPerPage=50&tags=story
+    """
+    SEARCH_URL = 'https://hn.algolia.com/api/v1/search'
+    r = requests.get(SEARCH_URL, params={'query': query, 'tags': tags})
+    r.raise_for_status()
+    data = r.json()['hits']
+
+    return [
+        Story(story_id=str(i['objectID']),
+              title=i['title'],
+              url=i['url'],
+              url_domain=get_domain(i['url'] or '//self'),
+              kids=[],
+              comment_count=i['num_comments'],
+              score=i['points'],
+              initialized=False)._asdict()
+        for i in data
+    ]

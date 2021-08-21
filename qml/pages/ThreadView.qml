@@ -235,13 +235,16 @@ Page {
         }
     }
 
-    function loadThread(story_id, title, url, kids) {
-        pageTitle = title
-        pageUrl = url
-        pageId = story_id
-        pageKids = kids
-        listModel.clear()
-        loadKids(story_id, kids, 0)
+    function loadThread(story_id) {
+        python.call("example.get_story", [story_id], function (story) {
+            console.log(JSON.stringify(story, null, 2))
+            pageTitle = story.title
+            pageUrl = story.url
+            pageId = story_id
+            pageKids = story.kids
+            listModel.clear()
+            loadKids(story_id, story.kids, 0)
+        })
     }
 
     function loadKids(thread_id, kids, depth) {
@@ -249,6 +252,7 @@ Page {
         var kid_ids = []
         var i
         if ((kids + "").startsWith('QQmlListModel')) {
+            //TODO: delete this block
             for (i = 0; i < kids.count; i++) {
                 kid_ids.push(kids.get(i).id)
             }

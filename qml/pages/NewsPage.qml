@@ -6,12 +6,22 @@ import io.thp.pyotherside 1.3
 import "../components"
 
 UUITK.Page {
+    property variant searchPage
     id: newsPage
     anchors.fill: parent
     header: UUITK.PageHeader {
         id: pageHeader
         title: 'Top Stories'
         z: 3
+        trailingActionBar.actions: [
+            UUITK.Action {
+                iconName: "find"
+                text: "Search"
+                onTriggered: {
+                    stack.push(searchPage)
+                }
+            }
+        ]
     }
     LVSpinner {
         id: spin
@@ -21,10 +31,7 @@ UUITK.Page {
     ListView {
         id: mylv
         spacing: 1
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
+        anchors.fill: parent
         cacheBuffer: height / 2
         boundsMovement: Flickable.StopAtBounds
         boundsBehavior: Flickable.DragOverBounds
