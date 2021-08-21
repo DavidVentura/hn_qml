@@ -5,6 +5,7 @@ Reader for [Hacker News](https://news.ycombinator.com/).
 Written in QML/python.
 
 ![](https://github.com/davidventura/hn_qml/blob/master/screenshots/main.png?raw=true)
+![](https://github.com/davidventura/hn_qml/blob/master/screenshots/search.png?raw=true)
 ![](https://github.com/davidventura/hn_qml/blob/master/screenshots/thread.png?raw=true)
 
 # Features
@@ -19,7 +20,6 @@ Written in QML/python.
 
 - `deleted` comment removal
 - Open links with app
-- Parse HTML into plain-text when sharing a comment's markup
 - Authentication
 - Up-voting
 
