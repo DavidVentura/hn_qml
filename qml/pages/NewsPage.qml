@@ -1,36 +1,58 @@
 import QtQuick 2.12
 import QtQuick.Shapes 1.12
 import QtGraphicalEffects 1.12
-import Ubuntu.Components 1.3
+import Ubuntu.Components 1.3 as UUITK
 import io.thp.pyotherside 1.3
 import ".."
 
-Page {
+UUITK.Page {
     id: newsPage
     anchors.fill: parent
-    header: PageHeader {
+    header: UUITK.PageHeader {
         id: pageHeader
         title: 'Top Stories'
         z: 3
     }
 
     Rectangle {
+        property int triggerY: -units.gu(10)
+        property int maxY: triggerY * 1.5
 
         id: spin
         x: parent.width / 2 - width / 2
-        y: {
-            if (mylv.verticalOvershoot >= -units.gu(15)) {
-                return -1.5 * mylv.verticalOvershoot
-            }
-            return units.gu(1.5 * 15)
-        }
+        y: Math.max(mylv.verticalOvershoot, maxY) * -1.5
+
         width: units.gu(5)
         height: units.gu(5)
         z: 2
         color: 'white'
-        rotation: mylv.verticalOvershoot * -2
+        rotation: mylv.verticalOvershoot * -1.5
         radius: units.gu(5)
 
+        Shape {
+            z: 3
+            anchors.fill: parent
+            layer.enabled: true
+            layer.samples: 16
+
+            ShapePath {
+
+                fillColor: "transparent"
+                strokeColor: "darkBlue"
+                strokeWidth: units.gu(0.1)
+                capStyle: ShapePath.RoundCap
+
+                PathAngleArc {
+                    id: arc
+                    centerX: spin.width / 2
+                    centerY: spin.height / 2
+                    radiusX: units.gu(1)
+                    radiusY: units.gu(1)
+                    startAngle: 0
+                    sweepAngle: 180
+                }
+            }
+        }
         layer.enabled: true
         layer.effect: DropShadow {
             width: spin.width
@@ -65,19 +87,16 @@ Page {
             text: "Drag to refresh"
             height: pageHeader.height
         }
-        onContentYChanged: {
-            if (contentY >= 0)
-                return
-            if (contentY < -units.gu(10)) {
+        onVerticalOvershootChanged: {
+
+            if (verticalOvershoot < -units.gu(10)) {
                 headerItem.text = "Release to refresh"
-            } else if (contentY >= -units.gu(10)) {
+            } else if (verticalOvershoot >= -units.gu(10)) {
                 headerItem.text = "Drag to refresh"
             }
         }
         onDragEnded: {
-            console.log('dragended')
-
-            if (contentY < -units.gu(10)) {
+            if (verticalOvershoot < spin.triggerY) {
                 headerItem.text = "Drag to refresh"
                 loadStories()
             }
