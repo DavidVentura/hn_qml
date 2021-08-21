@@ -6,19 +6,58 @@ import io.thp.pyotherside 1.3
 import "../components"
 
 UUITK.Page {
-    property variant searchPage
+    property bool searchMode: false
     id: newsPage
     anchors.fill: parent
+
     header: UUITK.PageHeader {
         id: pageHeader
         title: 'Top Stories'
         z: 3
+        contents: Item {
+            anchors.fill: parent
+
+            UUITK.TextField {
+                visible: searchMode
+                id: textField
+                placeholderText: "Search"
+                anchors.fill: parent
+                Keys.onReturnPressed: search()
+                anchors.topMargin: units.gu(1)
+                anchors.bottomMargin: units.gu(1)
+            }
+            UUITK.Label {
+                visible: !searchMode
+                anchors.fill: parent
+                verticalAlignment: Qt.AlignVCenter
+                text: 'Top Stories'
+            }
+        }
+
+        leadingActionBar.actions: [
+            UUITK.Action {
+                visible: searchMode
+                iconName: "close"
+                onTriggered: {
+                    searchMode = false
+                    textField.text = ''
+                    loadStories()
+                }
+            }
+        ]
+
         trailingActionBar.actions: [
             UUITK.Action {
                 iconName: "find"
                 text: "Search"
                 onTriggered: {
-                    stack.push(searchPage)
+                    if (searchMode) {
+                        search()
+                    } else {
+                        textField.forceActiveFocus()
+                    }
+
+                    searchMode = true
                 }
             }
         ]
@@ -124,5 +163,13 @@ UUITK.Page {
             console.log('python error: ' + traceback)
         }
         onReceived: console.log('Main-Event' + data)
+    }
+    function search() {
+        listModel.clear()
+        python.call("example.search", [textField.text], function (result) {
+            for (var i = 0; i < result.length; i++) {
+                listModel.append(result[i])
+            }
+        })
     }
 }

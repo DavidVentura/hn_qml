@@ -8,6 +8,7 @@ import threading
 import requests
 
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 from typing import List, NamedTuple
 from html.parser import HTMLParser
 
@@ -15,6 +16,12 @@ import pyotherside
 
 session = requests.Session()
 NUM_BG_THREADS = 2
+CONFIG_PATH = Path('/home/phablet/.config/hnr.davidv.dev/')
+
+if not CONFIG_PATH.exists():
+    CONFIG_PATH.mkdir()
+with (CONFIG_PATH / 'test.txt').open('w') as fd:
+    fd.write('hi!')
 
 comment_q = queue.Queue()
 thread_q = queue.Queue()

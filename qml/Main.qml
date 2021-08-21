@@ -42,12 +42,8 @@ MainView {
     NewsPage {
         visible: false
         id: newspage
-        searchPage: searchpage
     }
-    SearchPage {
-        visible: false
-        id: searchpage
-    }
+
     Connections {
         target: UriHandler
 

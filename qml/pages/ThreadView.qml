@@ -64,7 +64,7 @@ UUITK.Page {
         anchors.left: parent.left
         anchors.right: parent.right
         boundsBehavior: Flickable.StopAtBounds
-        cacheBuffer: height / 2
+        cacheBuffer: height > 0 ? height / 2 : 0
         model: listModel
 
         delegate: Column {
