@@ -7,7 +7,8 @@
         "hnr": {
             "apparmor": "hnr.apparmor",
             "desktop":  "hnr.desktop",
-            "content-hub": "content-hub.json"
+            "content-hub": "content-hub.json",
+            "urls": "url-dispatcher.json"
         }
     },
     "version": "1.0.2",

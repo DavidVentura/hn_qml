@@ -1,0 +1,10 @@
+[
+  {
+    "protocol": "http",
+    "domain-suffix": "news.ycombinator.com"
+  },
+  {
+    "protocol": "https",
+    "domain-suffix": "news.ycombinator.com"
+  }
+]
