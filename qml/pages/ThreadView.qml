@@ -122,13 +122,13 @@ UUITK.Page {
                             spacing: 0
                             Text {
                                 text: age
-                                font.pointSize: units.gu(1)
+                                font.pointSize: units.gu(1.1)
                                 color: '#999'
                             }
                             Text {
                                 leftPadding: units.gu(0.8)
                                 text: user
-                                font.pointSize: units.gu(1)
+                                font.pointSize: units.gu(1.1)
                                 font.bold: true
                                 color: barColor[depth % 8]
                             }
@@ -139,8 +139,8 @@ UUITK.Page {
                             }
 
                             Item {
-                                Layout.minimumWidth: units.gu(2)
-                                height: units.gu(2.2)
+                                Layout.minimumWidth: units.gu(5)
+                                height: units.gu(2.4)
 
                                 Image {
                                     source: "../../assets/options.svg"
