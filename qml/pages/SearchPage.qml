@@ -5,6 +5,8 @@ import io.thp.pyotherside 1.3
 import "../components"
 
 UUITK.Page {
+    property bool searching: false
+
     id: searchPage
     header: UUITK.PageHeader {
         id: pageHeader
@@ -36,12 +38,21 @@ UUITK.Page {
             }
         ]
     }
+    Item {
+        anchors.fill: searchPage
+        UUITK.ActivityIndicator {
+            anchors.centerIn: parent
+            running: true
+            visible: searching
+        }
+    }
     ListView {
         id: mylv
         spacing: 1
         anchors.fill: parent
         anchors.topMargin: pageHeader.height
         cacheBuffer: height / 2
+        visible: !searching
 
         model: ListModel {
             id: listModel
@@ -82,10 +93,13 @@ UUITK.Page {
         }
     }
     function search() {
+        searching = true
+        listModel.clear()
         python.call("example.search", [textField.text], function (result) {
             for (var i = 0; i < result.length; i++) {
                 listModel.append(result[i])
             }
+            searching = false
         })
     }
 }
