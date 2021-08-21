@@ -16,6 +16,10 @@ Written in QML/python.
 
 # Todo
 
+- `deleted` comment removal
+- Open links with app
+- Parse HTML into plain-text when sharing a comment's markup
+- Search
 - Authentication
 - Up-voting
 
