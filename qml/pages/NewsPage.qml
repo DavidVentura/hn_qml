@@ -7,6 +7,8 @@ import "../components"
 
 UUITK.Page {
     property bool searchMode: false
+    property bool submittedSearch: false
+
     id: newsPage
     anchors.fill: parent
 
@@ -41,7 +43,10 @@ UUITK.Page {
                 onTriggered: {
                     searchMode = false
                     textField.text = ''
-                    loadStories()
+                    if (submittedSearch) {
+                        loadStories()
+                    }
+                    submittedSearch = false
                 }
             }
         ]
@@ -52,6 +57,7 @@ UUITK.Page {
                 text: "Search"
                 onTriggered: {
                     if (searchMode) {
+                        submittedSearch = true
                         search()
                     } else {
                         textField.forceActiveFocus()
