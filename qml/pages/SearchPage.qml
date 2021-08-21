@@ -8,11 +8,13 @@ UUITK.Page {
     id: searchPage
     header: UUITK.PageHeader {
         id: pageHeader
-        contents: TextField {
+        contents: UUITK.TextField {
             id: textField
             placeholderText: "Search"
             anchors.fill: parent
             Keys.onReturnPressed: search()
+            anchors.topMargin: units.gu(1)
+            anchors.bottomMargin: units.gu(1)
         }
         leadingActionBar.actions: [
             UUITK.Action {

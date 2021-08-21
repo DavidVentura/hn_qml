@@ -13,13 +13,13 @@ Written in QML/python.
 - Pull to refresh
 - Threaded fetching of comments/news items
 - Share comment link/text
+- Story Search
 
 # Todo
 
 - `deleted` comment removal
 - Open links with app
 - Parse HTML into plain-text when sharing a comment's markup
-- Search
 - Authentication
 - Up-voting
 
