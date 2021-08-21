@@ -15,11 +15,11 @@ Written in QML/python.
 - Threaded fetching of comments/news items
 - Share comment link/text
 - Story Search
+- Open thread links with app
 
 # Todo
 
 - `deleted` comment removal
-- Open links with app
 - Authentication
 - Up-voting
 

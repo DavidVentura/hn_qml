@@ -48,4 +48,20 @@ MainView {
         visible: false
         id: searchpage
     }
+    Connections {
+        target: UriHandler
+
+        onOpened: {
+            console.log('Open from UriHandler')
+
+            if (uris.length > 0) {
+                console.log('Incoming call from UriHandler ' + uris[0])
+                const threadId = /id=(\d+)/.exec(uris[0])[1]
+                stack.push(threadview)
+
+                threadview.loadThread(threadId)
+                threadview.visible = true
+            }
+        }
+    }
 }

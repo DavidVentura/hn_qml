@@ -78,7 +78,7 @@ UUITK.Page {
             onThreadClicked: {
                 stack.push(threadview)
 
-                threadview.loadThread(story_id, title, url, kids)
+                threadview.loadThread(story_id)
                 threadview.visible = true
             }
         }
