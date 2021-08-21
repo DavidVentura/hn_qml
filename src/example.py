@@ -15,7 +15,7 @@ from html.parser import HTMLParser
 import pyotherside
 
 session = requests.Session()
-NUM_BG_THREADS = 2
+NUM_BG_THREADS = 4
 CONFIG_PATH = Path('/home/phablet/.config/hnr.davidv.dev/')
 
 if not CONFIG_PATH.exists():
@@ -25,7 +25,6 @@ with (CONFIG_PATH / 'test.txt').open('w') as fd:
 
 comment_q = queue.Queue()
 thread_q = queue.Queue()
-THREAD_CACHE = {}
 
 Comment = NamedTuple(
     "Comment",
@@ -41,7 +40,6 @@ Comment = NamedTuple(
         ("age", str),
         ("depth", int),
         ("threadVisible", bool),
-        ("initialized", bool),
     ],
 )
 Story = NamedTuple(
@@ -55,6 +53,7 @@ Story = NamedTuple(
         ("comment_count", int),
         ("score", int),
         ("initialized", bool),
+        ("highlight", str),
     ],
 )
 
@@ -76,20 +75,28 @@ for i in range(NUM_BG_THREADS):
     t.start()
 
 def fetch_and_signal(_id):
-    pyotherside.send("thread-pop", _id, get_story(_id))
+    pyotherside.send("thread-pop", get_story_stub(_id))
 
 def top_stories():
-    if os.path.exists("topstories.json"):
-        data = json.load(open("topstories.json"))
-    else:
-        r = session.get("https://hacker-news.firebaseio.com/v0/topstories.json")
-        data = r.json()
-
+    r = session.get("https://hacker-news.firebaseio.com/v0/topstories.json")
+    data = r.json()
     return [
-        Story(story_id=str(i), title="..", url="", url_domain="..", kids=[], comment_count=0, score=0, initialized=False)._asdict()
+        Story(story_id=str(i), title="..", url="", url_domain="..", kids=[], comment_count=0, score=0, initialized=False, highlight='')._asdict()
         for i in data
     ]
 
+def get_story_stub(_id):
+    data = get_id(_id)
+    s = Story(story_id=str(_id),
+                 title=data['title'],
+                 url=data.get('url', 'self'),
+                 url_domain=get_domain(data.get('url', '//self')),
+                 kids=[],
+                 comment_count=data.get('descendants', 0),
+                 score=data['score'],
+                 initialized=True,
+                 highlight='')._asdict()
+    return s
 
 def get_id(_id):
     _id = str(_id)
@@ -100,24 +107,32 @@ def get_id(_id):
 def get_domain(url):
     return url.split("/")[2]
 
+def flatten(children, depth):
+    res = []
+    for c in children:
+        _k = c.pop('children')
+        c['depth'] = depth
+        c['hasKids'] = len(_k) > 0
+        res.append(c)
+        res.extend(flatten(_k, depth + 1))
+    return res
+
 def get_story(_id) -> Story:
     _id = str(_id)
-    THREAD_CACHE[_id] = {}
 
-    raw_data = get_id(_id)
+    raw_data = requests.get('https://hn.algolia.com/api/v1/items/'+_id).json()
+
     if raw_data['type'] == 'comment':
         # app is opening a link directly to a comment
         story_id = requests.get('https://hn.algolia.com/api/v1/items/' + _id).json()['story_id']
         story = get_story(story_id)
-        story['kids'] = [{'id': str(_id)}]
-        print(story, flush=True)
+        story['highlight'] = str(_id)
         return story
     else:
-        comment_count = raw_data.get("descendants", 0)
-        score = raw_data["score"]
+        score = raw_data["points"]
         title = raw_data["title"]
 
-    kids = raw_data.get("kids", [])
+    kids = raw_data.get("children", [])
 
     if raw_data.get("url"):
         url = raw_data["url"]
@@ -126,11 +141,15 @@ def get_story(_id) -> Story:
         url = "self"
         url_domain = "self"
 
-    return Story(
+    kids = flatten(kids, 0)
+    kids = [{'threadVisible': True, 'age': _to_relative_time(k['created_at_i']),
+             'markup': html.unescape(k['text'] or ''), **k} for k in kids if k['text'] or k['hasKids']]
+    story = Story(
         story_id=_id, title=title, url=url, url_domain=url_domain,
-        kids=[{"id": str(k)} for k in kids], comment_count=comment_count,
-        score=score, initialized=True,
-    )._asdict()
+        kids=kids, comment_count=len(kids),
+        score=score, initialized=True, highlight='',
+    )
+    return story._asdict()
 
 
 def bg_fetch_story(story_id):
@@ -145,6 +164,8 @@ def get_comment_and_submit(thread_id, parent_id, _id, depth) -> None:
 
 
 def get_comment(thread_id, parent_id, _id, depth) -> Comment:
+    assert False
+    #FIXME
     if _id in THREAD_CACHE[thread_id]:
         return THREAD_CACHE[thread_id][_id]
 
@@ -175,9 +196,6 @@ def get_comment(thread_id, parent_id, _id, depth) -> Comment:
     THREAD_CACHE[thread_id][_id] = c
     return c
 
-def purge_queued_comments():
-    with comment_q.mutex:
-        comment_q.queue.clear()
 
 def _to_relative_time(tstamp):
    now = time.time()
@@ -216,7 +234,8 @@ def search(query, tags='story'):
               kids=[],
               comment_count=i['num_comments'],
               score=i['points'],
-              initialized=False)._asdict()
+              initialized=False,
+              highlight='')._asdict()
         for i in data
     ]
 

@@ -11,16 +11,10 @@ UUITK.Page {
     property variant barColor: ['#f44336', '#d500f9', '#304ffe', '#0288d1', '#26A69A', '#00c853', '#fff3e0', '#8d6e63']
     property string pageTitle: '..'
     property string pageUrl: 'http://example.com'
-    property int pageId
-    property variant pageKids: []
     property bool shouldRefresh: false
 
     Python {
         id: python
-
-        Component.onCompleted: {
-            setHandler('comment-pop', updateComment)
-        }
     }
 
     header: UUITK.PageHeader {
@@ -32,7 +26,6 @@ UUITK.Page {
                 iconName: "back"
                 text: "Back"
                 onTriggered: {
-                    python.call("example.purge_queued_comments")
                     stack.pop()
                 }
             }
@@ -73,13 +66,6 @@ UUITK.Page {
 
             height: threadVisible ? childrenRect.height : 0
             visible: threadVisible
-            Component.onCompleted: {
-                if (!initialized && threadVisible) {
-                    initialized = true
-                    python.call("example.fetch_comment",
-                                [pageId, thread_id, comment_id, depth])
-                }
-            }
 
             //            Behavior on height {
             //                NumberAnimation {
@@ -127,7 +113,7 @@ UUITK.Page {
                             }
                             Text {
                                 leftPadding: units.gu(0.8)
-                                text: user
+                                text: author
                                 font.pointSize: units.gu(1.1)
                                 font.bold: true
                                 color: barColor[depth % 8]
@@ -177,7 +163,7 @@ UUITK.Page {
                                             iconName: "share"
                                             label: i18n.tr("Share Link")
                                             onTriggered: {
-                                                sharer.content = "https://news.ycombinator.com/item?id=" + comment_id
+                                                sharer.content = "https://news.ycombinator.com/item?id=" + id
                                                 stack.push(sharer)
                                             }
                                         }
@@ -214,7 +200,7 @@ UUITK.Page {
                             // this completely breaks touch!
                         }
                         Rectangle {
-                            visible: kids.count > 0
+                            visible: hasKids
                             width: commentBody.width - units.gu(1.5)
                             height: units.gu(2.5)
                             color: 'transparent'
@@ -230,7 +216,7 @@ UUITK.Page {
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: {
-                                    toggleChildCommentsVisibility(comment_id)
+                                    toggleChildCommentsVisibility(id)
                                 }
                             }
                         }
@@ -240,54 +226,17 @@ UUITK.Page {
         }
     }
 
-    function loadThread(story_id) {
+    function loadThread(story_id, title, url) {
+        pageTitle = title
         python.call("example.get_story", [story_id], function (story) {
             pageTitle = story.title
             pageUrl = story.url
-            pageId = story_id
-            pageKids = story.kids
             listModel.clear()
-            loadKids(story_id, story.kids, 0)
-        })
-    }
-
-    function loadKids(thread_id, kids, depth) {
-        var insertPosition = indexOfComment(thread_id) + 1
-        const kid_ids = kids.map(function (x) {
-            return x.id
-        })
-
-        for (var i in kid_ids) {
-            const item = {
-                "depth": depth,
-                "thread_id": thread_id.toString(),
-                "markup": "...",
-                "comment_id": kid_ids[i].toString(),
-                "user": "..",
-                "age": "",
-                "kids": [],
-                "threadVisible": true,
-                "initialized": false
+            for (var i = 0; i < story.kids.length; i++) {
+                const kid = story.kids[i]
+                listModel.append(kid)
             }
-            listModel.insert(insertPosition, item)
-            insertPosition += 1
-        }
-    }
-
-    function indexOfComment(comment_id) {
-        for (var i = 0; i < listModel.count; i++) {
-            if (comment_id === listModel.get(i).comment_id) {
-                return i
-            }
-        }
-        return -1
-    }
-
-    function updateComment(comment) {
-        const idx = indexOfComment(comment.comment_id)
-        listModel.set(idx, comment)
-
-        loadKids(comment.comment_id, comment.kids, comment.depth + 1)
+        })
     }
 
     function toggleChildCommentsVisibility(comment_id) {

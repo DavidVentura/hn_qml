@@ -113,7 +113,8 @@ UUITK.Page {
             Component.onCompleted: {
                 if (!initialized) {
                     initialized = true
-                    python.call("example.bg_fetch_story", [story_id])
+                    python.call("example.fetch_and_signal", [story_id],
+                                function () {})
                 }
             }
             onUrlClicked: {
@@ -123,7 +124,7 @@ UUITK.Page {
             onThreadClicked: {
                 stack.push(threadview)
 
-                threadview.loadThread(story_id)
+                threadview.loadThread(story_id, title, url)
                 threadview.visible = true
             }
         }
@@ -148,7 +149,8 @@ UUITK.Page {
             })
             setHandler('comment-pop',
                        function () {}) // this is handled in ThreadView.qml
-            setHandler('thread-pop', function (id, data) {
+            setHandler('thread-pop', function (data) {
+                const id = data.story_id
                 for (var i = 0; i < listModel.count; i++) {
                     var item = listModel.get(i)
                     if (item.story_id !== id) {
