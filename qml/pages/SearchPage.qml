@@ -82,7 +82,7 @@ UUITK.Page {
 
         Component.onCompleted: {
             addImportPath(Qt.resolvedUrl('../../src/'))
-            importModule('example')
+            importModule('example', function () {})
             setHandler('search-pop', function (stories) {
                 console.log('stories', JSON.stringify(stories, null, 2))
             })

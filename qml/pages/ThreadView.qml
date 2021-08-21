@@ -185,7 +185,10 @@ UUITK.Page {
                                             iconName: "share"
                                             label: i18n.tr("Share Text")
                                             onTriggered: {
-                                                sharer.content = markup
+                                                const text = python.call_sync(
+                                                               'example.html_to_plaintext',
+                                                               [markup])
+                                                sharer.content = text
                                                 stack.push(sharer)
                                             }
                                         }

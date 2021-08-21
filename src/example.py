@@ -7,8 +7,9 @@ import threading
 
 import requests
 
-from typing import List, NamedTuple
 from concurrent.futures import ThreadPoolExecutor
+from typing import List, NamedTuple
+from html.parser import HTMLParser
 
 import pyotherside
 
@@ -141,7 +142,7 @@ def get_comment(thread_id, parent_id, _id, depth) -> Comment:
         markup = "deleted"
         user = "deleted"
     else:
-        markup = html.unescape(raw_data["text"]).replace('<p>', '<br/><br/>')
+        markup = html.unescape(raw_data["text"])
         user = raw_data["by"]
 
     age = _to_relative_time(raw_data['time'])
@@ -201,3 +202,25 @@ def search(query, tags='story'):
               initialized=False)._asdict()
         for i in data
     ]
+
+def html_to_plaintext(h):
+    class HTMLFilter(HTMLParser):
+        text = ""
+        parsing_anchor = False
+
+        def handle_starttag(self, tag, attrs):
+            if tag == 'p':
+                self.text += '\n'
+            elif tag == 'a':
+                self.text += dict(attrs)['href']
+                self.parsing_anchor = True
+        def handle_endtag(self, tag):
+            if tag == 'a':
+                self.parsing_anchor = False
+        def handle_data(self, data):
+            if not self.parsing_anchor:
+                self.text += data
+
+    f = HTMLFilter()
+    f.feed(h)
+    return f.text
