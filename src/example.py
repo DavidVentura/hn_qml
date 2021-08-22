@@ -174,7 +174,7 @@ def _to_relative_time(tstamp):
    return str(int(delta)) + 'y ago'
 
 def search(query, tags='story'):
-    r = session.get(SEARCH_URL, params={'query': query, 'tags': tags})
+    r = session.get(SEARCH_URL, params={'query': query, 'tags': tags, 'hitsPerPage': 50})
     r.raise_for_status()
     data = r.json()['hits']
 
