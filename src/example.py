@@ -4,30 +4,52 @@ import os
 import queue
 import html
 import threading
+import sys
 
 import requests
 
+from urllib.parse import urlparse, parse_qs
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import List, NamedTuple
 from html.parser import HTMLParser
 
+here = os.path.abspath(os.path.dirname(__file__))
+vendored = os.path.join(here, 'vendored')
+sys.path.insert(0, vendored)
+
+from bs4 import BeautifulSoup
+
 import pyotherside
 
 session = requests.Session()
+thread_q = queue.Queue()
+
 NUM_BG_THREADS = 4
 SEARCH_URL = 'https://hn.algolia.com/api/v1/search'
 ITEMS_URL = 'https://hn.algolia.com/api/v1/items/'
 TOP_STORIES_URL = 'https://hacker-news.firebaseio.com/v0/topstories.json'
 
 CONFIG_PATH = Path('/home/phablet/.config/hnr.davidv.dev/')
-
+CONFIG_FILE = CONFIG_PATH / 'config.json'
+CONFIG = {}
 if not CONFIG_PATH.exists():
     CONFIG_PATH.mkdir()
-with (CONFIG_PATH / 'test.txt').open('w') as fd:
-    fd.write('hi!')
 
-thread_q = queue.Queue()
+if not CONFIG_FILE.exists():
+    with CONFIG_FILE.open('w') as fd:
+        json.dump({'cookie': None}, fd)
+
+with CONFIG_FILE.open() as fd:
+    try:
+        CONFIG = json.load(fd)
+    except Exception as e:
+        CONFIG = {'cookie': None}
+
+def save_config():
+    cfg = json.dumps(CONFIG, indent=4)
+    with CONFIG_FILE.open('w') as fd:
+        fd.write(cfg)
 
 Comment = NamedTuple(
     "Comment",
@@ -217,3 +239,49 @@ def html_to_plaintext(h):
     f = HTMLFilter()
     f.feed(h)
     return f.text
+
+def login_and_store_cookie(user, password):
+    LOGIN_URL = 'https://news.ycombinator.com/login'
+    session = requests.Session()
+
+    payload = { 'acct': user, 'pw': password }
+    print(payload)
+    r = session.post(LOGIN_URL, data=payload)
+    print(r.status_code, flush=True)
+    cookies = session.cookies.get_dict()
+    print(cookies, flush=True)
+    if 'user' in cookies:
+        CONFIG['cookie'] = cookies['user']
+        save_config()
+        return True
+    return False
+
+def get_settings():
+    print(CONFIG, flush=True)
+    pyotherside.send('settings', CONFIG)
+
+
+def get_auth_for_id(_id):
+    cookies = {'user': CONFIG['cookie']}
+    url = 'https://news.ycombinator.com/item?id=' + _id
+    r = requests.get(url, cookies=cookies)
+    soup = BeautifulSoup(r.text, 'html.parser')
+    for a in soup.find_all('a'):
+        if not a.get('href'):
+            continue
+        href = a['href']
+        u = urlparse(href)
+        qp = parse_qs(u.query)
+        if 'auth' not in qp or qp.get('id') != [_id]:
+            continue
+        return qp['auth'][0]
+
+def vote_up(comment_id):
+    auth = get_auth_for_id(comment_id)
+    if not auth:
+        print('Failed to get auth', flush=True)
+        return
+    VOTE_URL = 'https://news.ycombinator.com/vote'
+    cookies = {'user': CONFIG['cookie']}
+
+    r = requests.get(VOTE_URL, params={'id': comment_id, 'how': 'up', 'auth': auth}, cookies=cookies)

@@ -18,9 +18,14 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import Ubuntu.Components 1.3
 import Qt.labs.settings 1.0
+import io.thp.pyotherside 1.3
+
 import "./pages"
 
 MainView {
+    property variant settings: {
+
+    }
     id: root
     objectName: 'mainView'
     applicationName: 'hnr.davidv.dev'
@@ -43,6 +48,10 @@ MainView {
         visible: false
         id: newspage
     }
+    LoginPage {
+        visible: false
+        id: loginpage
+    }
 
     Connections {
         target: UriHandler
@@ -57,6 +66,19 @@ MainView {
 
                 threadview.loadThread(threadId, '..', uris[0])
             }
+        }
+    }
+    Python {
+        id: python
+        Component.onCompleted: {
+            addImportPath(Qt.resolvedUrl('../src/'))
+            setHandler('settings', function (_settings) {
+                settings = _settings
+                console.log('New settings', JSON.stringify(_settings, null, 2))
+            })
+            importModule('example', function () {
+                python.call('example.get_settings', [])
+            })
         }
     }
 }

@@ -16,11 +16,13 @@ Written in QML/python.
 - Share comment link/text
 - Story Search
 - Open thread links with app
+- Authentication!
+- Up-voting
 
 # Todo
 
-- Authentication
-- Up-voting
+- Replies to comments
+- Submissions
 
 # Abandoned plans
 

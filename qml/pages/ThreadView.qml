@@ -177,7 +177,7 @@ UUITK.Page {
                                             iconName: "share"
                                             label: i18n.tr("Share Link")
                                             onTriggered: {
-                                                sharer.content = "https://news.ycombinator.com/item?id=" + comment_id
+                                                sharer.content = "https://news.ycombinator.com/item?id=" + comment_id.toString()
                                                 stack.push(sharer)
                                             }
                                         }
@@ -190,6 +190,20 @@ UUITK.Page {
                                                                [markup])
                                                 sharer.content = text
                                                 stack.push(sharer)
+                                            }
+                                        }
+                                        MenuPanelItem {
+                                            enabled: root.settings.cookie !== undefined
+                                            iconName: "select"
+                                            label: i18n.tr("Vote up")
+                                            onTriggered: {
+                                                python.call('example.vote_up',
+                                                            [comment_id.toString(
+                                                                 )],
+                                                            function () {
+                                                                console.log('upvoted!')
+                                                            })
+                                                //stack.push(loginpage)
                                             }
                                         }
                                     }

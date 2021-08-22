@@ -1,4 +1,5 @@
 import QtQuick 2.12
+import QtQuick.Controls 2.2
 import QtQuick.Shapes 1.12
 import QtGraphicalEffects 1.12
 import Ubuntu.Components 1.3 as UUITK
@@ -12,7 +13,6 @@ UUITK.Page {
 
     id: newsPage
     anchors.fill: parent
-
     header: UUITK.PageHeader {
         id: pageHeader
         title: 'Top Stories'
@@ -38,6 +38,16 @@ UUITK.Page {
         }
 
         leadingActionBar.actions: [
+            UUITK.Action {
+                visible: !searchMode
+                iconName: 'navigation-menu'
+                onTriggered: {
+                    if (!menu.opened) {
+                        menu.open()
+                    }
+                }
+            },
+
             UUITK.Action {
                 visible: searchMode
                 iconName: "close"
@@ -68,6 +78,51 @@ UUITK.Page {
             }
         ]
     }
+    Menu {
+        id: menu
+        width: units.gu(20)
+        y: header.height
+
+        background: Rectangle {
+            id: bgRectangle
+
+            layer.enabled: true
+            layer.effect: DropShadow {
+                width: bgRectangle.width
+                height: bgRectangle.height
+                x: bgRectangle.x
+                y: bgRectangle.y
+                visible: bgRectangle.visible
+
+                source: bgRectangle
+
+                horizontalOffset: 0
+                verticalOffset: 5
+                radius: 10
+                samples: 20
+                color: "#999"
+            }
+        }
+
+        MenuPanelItem {
+            visible: root.settings.cookie === undefined
+            iconName: "account"
+            label: i18n.tr("Log in")
+            onTriggered: {
+                stack.push(loginpage)
+            }
+        }
+        MenuPanelItem {
+            enabled: false // root.settings.cookie
+            iconName: "compose"
+            label: i18n.tr("Submit")
+            onTriggered: {
+
+                //stack.push(loginpage)
+            }
+        }
+    }
+
     LVSpinner {
         id: spin
         listView: mylv

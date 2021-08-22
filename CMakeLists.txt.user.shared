@@ -166,6 +166,7 @@
          <value type="QString">LD_LIBRARY_PATH=/home/david/git/hnr/lib/all:/home/david/git/hnr/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/home/david/git/hnr/build/all/app/install/lib</value>
          <value type="QString">QML2_IMPORT_PATH=/home/david/git/hnr/lib/all:/home/david/git/hnr/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/home/david/git/hnr/build/all/app/install/qml:/home/david/git/hnr/build/all/app/install/lib</value>
          <value type="QString">PATH=/home/david/git/hnr/bin:/home/david/git/hnr/lib/all/bin:/home/david/git/hnr:/usr/local/nvidia/bin:/bin:/usr/bin:/home/david/git/hnr/build/all/app/install</value>
+         <value type="QString">QT_QPA_PLATFORMTHEME=ubuntuappmenu</value>
     </valuelist>
     <value type="QString" key="ProjectExplorer.CustomExecutableRunConfiguration.Arguments">qml/Main.qml</value>
     <value type="QString" key="ProjectExplorer.CustomExecutableRunConfiguration.Executable">qmlscene</value>
@@ -228,6 +229,7 @@
          <value type="QString">LD_LIBRARY_PATH=/home/david/git/hnr/lib/all:/home/david/git/hnr/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/home/david/git/hnr/build/all/app/install/lib</value>
          <value type="QString">QML2_IMPORT_PATH=/home/david/git/hnr/lib/all:/home/david/git/hnr/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:/home/david/git/hnr/build/all/app/install/qml:/home/david/git/hnr/build/all/app/install/lib</value>
          <value type="QString">PATH=/home/david/git/hnr/bin:/home/david/git/hnr/lib/all/bin:/home/david/git/hnr:/usr/local/nvidia/bin:/bin:/usr/bin:/home/david/git/hnr/build/all/app/install</value>
+         <value type="QString">QT_QPA_PLATFORMTHEME=ubuntuappmenu</value>
     </valuelist>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">Run qmlscene</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
