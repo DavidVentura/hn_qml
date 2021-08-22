@@ -57,7 +57,6 @@ UUITK.Page {
                 text: "Search"
                 onTriggered: {
                     if (searchMode) {
-                        submittedSearch = true
                         search()
                     } else {
                         textField.forceActiveFocus()
@@ -173,6 +172,7 @@ UUITK.Page {
         onReceived: console.log('Main-Event' + data)
     }
     function search() {
+        submittedSearch = true
         listModel.clear()
         python.call("example.search", [textField.text], function (result) {
             for (var i = 0; i < result.length; i++) {
