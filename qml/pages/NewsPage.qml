@@ -8,6 +8,7 @@ import "../components"
 UUITK.Page {
     property bool searchMode: false
     property bool submittedSearch: false
+    property bool searching: false
 
     id: newsPage
     anchors.fill: parent
@@ -71,8 +72,17 @@ UUITK.Page {
         id: spin
         listView: mylv
     }
+    Item {
+        anchors.fill: parent
+        UUITK.ActivityIndicator {
+            anchors.centerIn: parent
+            running: true
+            visible: searching
+        }
+    }
 
     ListView {
+        visible: true
         id: mylv
         spacing: 1
         anchors.fill: parent
@@ -172,12 +182,14 @@ UUITK.Page {
         onReceived: console.log('Main-Event' + data)
     }
     function search() {
+        searching = true
         submittedSearch = true
         listModel.clear()
         python.call("example.search", [textField.text], function (result) {
             for (var i = 0; i < result.length; i++) {
                 listModel.append(result[i])
             }
+            searching = false
         })
     }
 }

@@ -11,7 +11,7 @@ UUITK.Page {
     property variant barColor: ['#f44336', '#d500f9', '#304ffe', '#0288d1', '#26A69A', '#00c853', '#fff3e0', '#8d6e63']
     property string pageTitle: '..'
     property string pageUrl: 'http://example.com'
-    property bool shouldRefresh: false
+    property bool loading: false
 
     Python {
         id: python
@@ -26,6 +26,7 @@ UUITK.Page {
                 iconName: "back"
                 text: "Back"
                 onTriggered: {
+                    listModel.clear()
                     stack.pop()
                 }
             }
@@ -48,7 +49,14 @@ UUITK.Page {
     ListModel {
         id: listModel
     }
-
+    Item {
+        anchors.fill: parent
+        UUITK.ActivityIndicator {
+            anchors.centerIn: parent
+            running: true
+            visible: loading
+        }
+    }
     ListView {
         anchors.leftMargin: units.gu(0.5)
         anchors.rightMargin: units.gu(0.5)
@@ -227,11 +235,14 @@ UUITK.Page {
     }
 
     function loadThread(story_id, title, url) {
+        listModel.clear()
         pageTitle = title
+        loading = true
         python.call("example.get_story", [story_id], function (story) {
             pageTitle = story.title
             pageUrl = story.url
-            listModel.clear()
+            loading = false
+
             for (var i = 0; i < story.kids.length; i++) {
                 const kid = story.kids[i]
                 listModel.append(kid)
