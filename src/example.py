@@ -50,6 +50,7 @@ def save_config():
     cfg = json.dumps(CONFIG, indent=4)
     with CONFIG_FILE.open('w') as fd:
         fd.write(cfg)
+    get_settings()
 
 Comment = NamedTuple(
     "Comment",
@@ -241,6 +242,7 @@ def html_to_plaintext(h):
     return f.text
 
 def login_and_store_cookie(user, password):
+
     LOGIN_URL = 'https://news.ycombinator.com/login'
     session = requests.Session()
 

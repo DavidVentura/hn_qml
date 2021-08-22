@@ -64,14 +64,13 @@ UUITK.Page {
         UUITK.Button {
             text: "Log in"
             Layout.topMargin: units.gu(2)
-            anchors.left: parent.left
-            anchors.right: parent.right
+            Layout.fillWidth: true
             onClicked: login()
         }
 
         UUITK.ActivityIndicator {
-            anchors.left: parent.left
-            anchors.right: parent.right
+            Layout.topMargin: units.gu(2)
+            Layout.fillWidth: true
             running: true
             visible: busy
         }
