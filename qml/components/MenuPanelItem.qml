@@ -8,7 +8,7 @@ MenuItem {
     property alias iconName: menu_icon.name
     property alias label: label.text
 
-    height: units.gu(6)
+    height: visible ? units.gu(6) : 0
     width: parent.width
 
     UITK.Icon {
