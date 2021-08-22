@@ -12,6 +12,7 @@ UUITK.Page {
     property string pageTitle: '..'
     property string pageUrl: 'http://example.com'
     property bool loading: false
+    property int highlightComment
 
     Python {
         id: python
@@ -58,6 +59,7 @@ UUITK.Page {
         }
     }
     ListView {
+        id: mylv
         anchors.leftMargin: units.gu(0.5)
         anchors.rightMargin: units.gu(0.5)
         anchors.top: header.bottom
@@ -67,6 +69,9 @@ UUITK.Page {
         boundsBehavior: Flickable.StopAtBounds
         cacheBuffer: height > 0 ? height / 2 : 0
         model: listModel
+        highlightFollowsCurrentItem: true
+        highlightMoveDuration: 0
+        highlightMoveVelocity: -1
 
         delegate: Column {
             anchors.left: parent.left
@@ -106,7 +111,8 @@ UUITK.Page {
                     id: commentBody
                     width: parent.width
                     height: childrenRect.height
-                    color: '#f6f6ef'
+                    color: highlightComment == comment_id ? '#e8e8d6' : '#f6f6ef'
+
                     Column {
                         padding: units.gu(1)
 
@@ -171,7 +177,7 @@ UUITK.Page {
                                             iconName: "share"
                                             label: i18n.tr("Share Link")
                                             onTriggered: {
-                                                sharer.content = "https://news.ycombinator.com/item?id=" + id
+                                                sharer.content = "https://news.ycombinator.com/item?id=" + comment_id
                                                 stack.push(sharer)
                                             }
                                         }
@@ -247,7 +253,26 @@ UUITK.Page {
                 const kid = story.kids[i]
                 listModel.append(kid)
             }
+            highlightComment = 0
+            if (story.highlight) {
+                highlightComment = story.highlight
+                const idx = indexOfComment(highlightComment)
+                if (idx === -1) {
+                    return
+                }
+
+                mylv.currentIndex = idx
+            }
         })
+    }
+
+    function indexOfComment(comment_id) {
+        for (var i = 0; i < listModel.count; i++) {
+            if (comment_id === listModel.get(i).comment_id) {
+                return i
+            }
+        }
+        return -1
     }
 
     function toggleChildCommentsVisibility(comment_id) {

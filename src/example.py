@@ -56,16 +56,14 @@ Story = NamedTuple(
         ("comment_count", int),
         ("score", int),
         ("initialized", bool),
-        ("highlight", str),
+        ("highlight", int),
     ],
 )
 
 def do_work():
     while True:
-        if not thread_q.empty():
-            t = thread_q.get()
-            fetch_and_signal(t)
-            continue
+        t = thread_q.get()
+        fetch_and_signal(t)
         time.sleep(0.05)
 
 for i in range(NUM_BG_THREADS):
@@ -80,7 +78,7 @@ def top_stories():
     r = session.get(TOP_STORIES_URL)
     data = r.json()
     return [
-        Story(story_id=str(i), title="..", url="", url_domain="..", kids=[], comment_count=0, score=0, initialized=False, highlight='')._asdict()
+        Story(story_id=str(i), title="..", url="", url_domain="..", kids=[], comment_count=0, score=0, initialized=False, highlight=0)._asdict()
         for i in data
     ]
 
@@ -94,7 +92,7 @@ def get_story_stub(_id):
                  comment_count=data.get('descendants', 0),
                  score=data['score'],
                  initialized=True,
-                 highlight='')._asdict()
+                 highlight=0)._asdict()
     return s
 
 def get_id(_id):
@@ -118,15 +116,16 @@ def flatten(children, depth):
 
 def get_story(_id) -> Story:
     _id = str(_id)
+
     t = time.time()
     raw_data = session.get(ITEMS_URL + _id).json()
     print('Fetching story took', time.time() - t, flush=True)
-
     if raw_data['type'] == 'comment':
         # app is opening a link directly to a comment
         story_id = session.get(ITEMS_URL + _id).json()['story_id']
         story = get_story(story_id)
-        story['highlight'] = str(_id)
+        print('Fetched a comment..', _id)
+        story['highlight'] = int(_id)
         return story
     else:
         score = raw_data["points"]
@@ -143,7 +142,7 @@ def get_story(_id) -> Story:
 
     kids = flatten(kids, 0)
     kids = [{'threadVisible': True, 'age': _to_relative_time(k['created_at_i']),
-             'markup': html.unescape(k['text'] or ''), **k} for k in kids if k['text'] or k['hasKids']]
+             'markup': html.unescape(k['text'] or ''), 'comment_id': k['id'], **k} for k in kids if k['text'] or k['hasKids']]
     story = Story(
         story_id=_id, title=title, url=url, url_domain=url_domain,
         kids=kids, comment_count=len(kids),
@@ -189,7 +188,7 @@ def search(query, tags='story'):
               comment_count=i['num_comments'],
               score=i['points'],
               initialized=False,
-              highlight='')._asdict()
+              highlight=0)._asdict()
         for i in data
     ]
 

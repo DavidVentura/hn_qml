@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: hnr.davidv.dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-22 08:31+0000\n"
+"POT-Creation-Date: 2021-08-22 15:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../qml/pages/ThreadView.qml:172
+#: ../qml/pages/ThreadView.qml:190
 msgid "Share Link"
 msgstr ""
 
-#: ../qml/pages/ThreadView.qml:180
+#: ../qml/pages/ThreadView.qml:198
 msgid "Share Text"
 msgstr ""
 

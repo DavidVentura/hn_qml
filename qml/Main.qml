@@ -55,8 +55,7 @@ MainView {
                 const threadId = /id=(\d+)/.exec(uris[0])[1]
                 stack.push(threadview)
 
-                threadview.loadThread(threadId)
-                threadview.visible = true
+                threadview.loadThread(threadId, '..', uris[0])
             }
         }
     }
