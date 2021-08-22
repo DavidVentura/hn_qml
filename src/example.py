@@ -18,6 +18,7 @@ session = requests.Session()
 NUM_BG_THREADS = 4
 SEARCH_URL = 'https://hn.algolia.com/api/v1/search'
 ITEMS_URL = 'https://hn.algolia.com/api/v1/items/'
+TOP_STORIES_URL = 'https://hacker-news.firebaseio.com/v0/topstories.json'
 
 CONFIG_PATH = Path('/home/phablet/.config/hnr.davidv.dev/')
 
@@ -76,7 +77,7 @@ def fetch_and_signal(_id):
     pyotherside.send("thread-pop", get_story_stub(_id))
 
 def top_stories():
-    r = session.get("https://hacker-news.firebaseio.com/v0/topstories.json")
+    r = session.get(TOP_STORIES_URL)
     data = r.json()
     return [
         Story(story_id=str(i), title="..", url="", url_domain="..", kids=[], comment_count=0, score=0, initialized=False, highlight='')._asdict()
@@ -117,8 +118,9 @@ def flatten(children, depth):
 
 def get_story(_id) -> Story:
     _id = str(_id)
-
+    t = time.time()
     raw_data = session.get(ITEMS_URL + _id).json()
+    print('Fetching story took', time.time() - t, flush=True)
 
     if raw_data['type'] == 'comment':
         # app is opening a link directly to a comment
