@@ -16,6 +16,9 @@ import pyotherside
 
 session = requests.Session()
 NUM_BG_THREADS = 4
+SEARCH_URL = 'https://hn.algolia.com/api/v1/search'
+ITEMS_URL = 'https://hn.algolia.com/api/v1/items/'
+
 CONFIG_PATH = Path('/home/phablet/.config/hnr.davidv.dev/')
 
 if not CONFIG_PATH.exists():
@@ -23,7 +26,6 @@ if not CONFIG_PATH.exists():
 with (CONFIG_PATH / 'test.txt').open('w') as fd:
     fd.write('hi!')
 
-comment_q = queue.Queue()
 thread_q = queue.Queue()
 
 Comment = NamedTuple(
@@ -59,10 +61,6 @@ Story = NamedTuple(
 
 def do_work():
     while True:
-        if not comment_q.empty():
-            c = comment_q.get()
-            get_comment_and_submit(*c)
-            continue
         if not thread_q.empty():
             t = thread_q.get()
             fetch_and_signal(t)
@@ -120,11 +118,11 @@ def flatten(children, depth):
 def get_story(_id) -> Story:
     _id = str(_id)
 
-    raw_data = requests.get('https://hn.algolia.com/api/v1/items/'+_id).json()
+    raw_data = session.get(ITEMS_URL + _id).json()
 
     if raw_data['type'] == 'comment':
         # app is opening a link directly to a comment
-        story_id = requests.get('https://hn.algolia.com/api/v1/items/' + _id).json()['story_id']
+        story_id = session.get(ITEMS_URL + _id).json()['story_id']
         story = get_story(story_id)
         story['highlight'] = str(_id)
         return story
@@ -155,48 +153,6 @@ def get_story(_id) -> Story:
 def bg_fetch_story(story_id):
     thread_q.put(story_id)
 
-def fetch_comment(thread_id, parent_id, _id, depth):
-    comment_q.put((str(thread_id), str(parent_id), str(_id), depth))
-
-def get_comment_and_submit(thread_id, parent_id, _id, depth) -> None:
-    comment = get_comment(thread_id, parent_id, _id, depth)
-    pyotherside.send('comment-pop', comment)
-
-
-def get_comment(thread_id, parent_id, _id, depth) -> Comment:
-    assert False
-    #FIXME
-    if _id in THREAD_CACHE[thread_id]:
-        return THREAD_CACHE[thread_id][_id]
-
-    raw_data = get_id(_id)
-
-    deleted = False
-    dead = False
-    markup = ""
-    user = ""
-    if "text" not in raw_data:
-        deleted = True
-        markup = "deleted"
-        user = "deleted"
-    else:
-        markup = html.unescape(raw_data["text"])
-        user = raw_data["by"]
-
-    age = _to_relative_time(raw_data['time'])
-    dead = raw_data.get("dead", False)
-    kids = raw_data.get("kids", [])
-
-    c = Comment(thread_id=str(thread_id), parent_id=str(parent_id), comment_id=str(_id),
-                   user=user,
-                   markup=markup, kids=[{'id': str(k)} for k in kids],
-                   dead=dead, deleted=deleted, age=age,
-                   threadVisible=True, initialized=True,
-                   depth=depth)._asdict()
-    THREAD_CACHE[thread_id][_id] = c
-    return c
-
-
 def _to_relative_time(tstamp):
    now = time.time()
    delta = now - tstamp
@@ -218,11 +174,7 @@ def _to_relative_time(tstamp):
    return str(int(delta)) + 'y ago'
 
 def search(query, tags='story'):
-    """
-    https://hn.algolia.com/api/v1/search?query=qml&hitsPerPage=50&tags=story
-    """
-    SEARCH_URL = 'https://hn.algolia.com/api/v1/search'
-    r = requests.get(SEARCH_URL, params={'query': query, 'tags': tags})
+    r = session.get(SEARCH_URL, params={'query': query, 'tags': tags})
     r.raise_for_status()
     data = r.json()['hits']
 
