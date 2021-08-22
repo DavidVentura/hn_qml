@@ -1,5 +1,5 @@
 import QtQuick 2.12
-import QtQuick.Controls 2.2
+import QtQuick.Controls 2.12
 import QtQuick.Shapes 1.12
 import QtGraphicalEffects 1.12
 import Ubuntu.Components 1.3 as UUITK
@@ -10,8 +10,8 @@ UUITK.Page {
     property bool searchMode: false
     property bool submittedSearch: false
     property bool searching: false
-
-    id: newsPage
+    property int id: newsPage
+    property variant lastMenuToggled: 0
     anchors.fill: parent
     header: UUITK.PageHeader {
         id: pageHeader
@@ -41,10 +41,14 @@ UUITK.Page {
             UUITK.Action {
                 visible: !searchMode
                 iconName: 'navigation-menu'
+
                 onTriggered: {
-                    if (!menu.opened) {
-                        menu.open()
+                    let delta = (new Date()).getTime() - lastMenuToggled
+                    if (delta < 250) {
+                        return
                     }
+
+                    menu.visible ? menu.close() : menu.open()
                 }
             },
 
@@ -82,6 +86,10 @@ UUITK.Page {
         id: menu
         width: units.gu(20)
         y: header.height
+        onVisibleChanged: {
+            let now = (new Date()).getTime()
+            lastMenuToggled = now
+        }
 
         background: Rectangle {
             id: bgRectangle
