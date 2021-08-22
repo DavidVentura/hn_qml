@@ -19,7 +19,6 @@ Written in QML/python.
 
 # Todo
 
-- `deleted` comment removal
 - Authentication
 - Up-voting
 

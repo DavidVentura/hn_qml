@@ -141,8 +141,12 @@ def get_story(_id) -> Story:
         url_domain = "self"
 
     kids = flatten(kids, 0)
-    kids = [{'threadVisible': True, 'age': _to_relative_time(k['created_at_i']),
-             'markup': html.unescape(k['text'] or ''), 'comment_id': k['id'], **k} for k in kids if k['text'] or k['hasKids']]
+    kids = [{'threadVisible': True,
+             'age': _to_relative_time(k['created_at_i']),
+             'markup': html.unescape(k['text'] or ''),
+             'comment_id': k['id'],
+             **k}
+             for k in kids if k['text'] or k['hasKids']]
     story = Story(
         story_id=_id, title=title, url=url, url_domain=url_domain,
         kids=kids, comment_count=len(kids),
