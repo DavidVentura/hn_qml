@@ -126,7 +126,7 @@ UUITK.Page {
             label: i18n.tr("Submit")
             onTriggered: {
 
-                //stack.push(loginpage)
+                // TODO
             }
         }
     }
@@ -190,12 +190,14 @@ UUITK.Page {
                 }
             }
             onUrlClicked: {
-                console.log("urlclicked mainqml", url)
-                Qt.openUrlExternally(url)
+                if (url == 'self') {
+                    threadClicked()
+                } else {
+                    Qt.openUrlExternally(url)
+                }
             }
             onThreadClicked: {
                 stack.push(threadview)
-
                 threadview.loadThread(story_id, title, url)
                 threadview.visible = true
             }
