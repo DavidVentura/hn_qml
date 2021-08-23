@@ -77,15 +77,10 @@ UUITK.Page {
             anchors.left: parent.left
             anchors.right: parent.right
 
-            height: threadVisible ? childrenRect.height : 0
-            visible: threadVisible
-
-            //            Behavior on height {
-            //                NumberAnimation {
-            //                    duration: 100
-            //                }
-            //            }
-            // animation is fairly wonky
+            height: {
+                if (!threadVisible)
+                    return 0
+            }
 
             // this is instead of using spacing on the ListView
             // so that when items are hidden, the spacing also goes away
@@ -197,13 +192,13 @@ UUITK.Page {
                                             iconName: "select"
                                             label: i18n.tr("Vote up")
                                             onTriggered: {
+                                                popover.show('Voting..')
                                                 python.call('example.vote_up',
                                                             [comment_id.toString(
                                                                  )],
                                                             function () {
                                                                 popover.show('Voted successfully')
                                                             })
-                                                //stack.push(loginpage)
                                             }
                                         }
                                     }
@@ -262,9 +257,9 @@ UUITK.Page {
         y: parent.height - height - units.dp(14)
 
         background: Rectangle {
-            color: "#111111"
-            opacity: 0.7
-            radius: units.dp(10)
+            color: "#000"
+            opacity: 0.6
+            radius: units.dp(28)
         }
 
         Text {
@@ -287,7 +282,7 @@ UUITK.Page {
         function show(text) {
             popupLabel.text = text
             open()
-            popupTimer.start()
+            popupTimer.restart()
         }
     }
 
