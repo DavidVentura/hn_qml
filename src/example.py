@@ -98,7 +98,7 @@ def fetch_and_signal(_id):
     pyotherside.send("thread-pop", get_story_stub(_id))
 
 def top_stories():
-    r = session.get(TOP_STORIES_URL)
+    r = requests.get(TOP_STORIES_URL)
     data = r.json()
     return [
         Story(story_id=str(i), title="..", url="", url_domain="..", kids=[], comment_count=0, score=0, initialized=False, highlight=0)._asdict()
@@ -141,11 +141,11 @@ def get_story(_id) -> Story:
     _id = str(_id)
 
     t = time.time()
-    raw_data = session.get(ITEMS_URL + _id).json()
+    raw_data = requests.get(ITEMS_URL + _id).json()
     print('Fetching story took', time.time() - t, flush=True)
     if raw_data['type'] == 'comment':
         # app is opening a link directly to a comment
-        story_id = session.get(ITEMS_URL + _id).json()['story_id']
+        story_id = requests.get(ITEMS_URL + _id).json()['story_id']
         story = get_story(story_id)
         print('Fetched a comment..', _id)
         story['highlight'] = int(_id)
@@ -164,6 +164,12 @@ def get_story(_id) -> Story:
         url_domain = "self"
 
     kids = flatten(kids, 0)
+
+    if raw_data["text"]:  # self-story
+        _self = raw_data.copy()
+        _self.pop('children')
+        kids.insert(0, _self)
+
     kids = [{'threadVisible': True,
              'age': _to_relative_time(k['created_at_i']),
              'markup': html.unescape(k['text'] or ''),
@@ -202,7 +208,7 @@ def _to_relative_time(tstamp):
    return str(int(delta)) + 'y ago'
 
 def search(query, tags='story'):
-    r = session.get(SEARCH_URL, params={'query': query, 'tags': tags, 'hitsPerPage': 50})
+    r = requests.get(SEARCH_URL, params={'query': query, 'tags': tags, 'hitsPerPage': 50})
     r.raise_for_status()
     data = r.json()['hits']
 
