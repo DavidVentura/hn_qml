@@ -71,7 +71,7 @@ UUITK.Page {
         UUITK.ActivityIndicator {
             Layout.topMargin: units.gu(2)
             Layout.fillWidth: true
-            running: true
+            running: busy
             visible: busy
         }
     }
