@@ -139,7 +139,7 @@ UUITK.Page {
         anchors.fill: parent
         UUITK.ActivityIndicator {
             anchors.centerIn: parent
-            running: true
+            running: searching
             visible: searching
         }
     }
