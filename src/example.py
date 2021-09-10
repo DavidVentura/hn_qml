@@ -132,7 +132,7 @@ def flatten(children, depth):
     for c in children:
         _k = c.pop('children')
         c['depth'] = depth
-        c['hasKids'] = len(_k) > 0
+        c['hasKids'] = any(True for k in _k if k['text'] or k['children'])
         res.append(c)
         res.extend(flatten(_k, depth + 1))
     return res
