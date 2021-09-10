@@ -247,6 +247,10 @@ UUITK.Page {
                 }
             }
         }
+        footer: Item {
+            width: parent.width
+            height: units.gu(0.5)
+        }
     }
 
     Popup {
