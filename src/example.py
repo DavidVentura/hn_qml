@@ -9,9 +9,8 @@ import sys
 import requests
 
 from urllib.parse import urlparse, parse_qs
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import List, NamedTuple
+from typing import List, NamedTuple, Dict
 from html.parser import HTMLParser
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -60,7 +59,7 @@ Comment = NamedTuple(
         ("comment_id", str),
         ("user", str),
         ("markup", str),
-        ("kids", List[int]),
+        ("kids", List[Dict[str, str]]),
         ("dead", bool),
         ("deleted", bool),
         ("age", str),
@@ -137,7 +136,7 @@ def flatten(children, depth):
         res.extend(flatten(_k, depth + 1))
     return res
 
-def get_story(_id) -> Story:
+def get_story(_id) -> Dict:
     _id = str(_id)
 
     t = time.time()
@@ -146,7 +145,7 @@ def get_story(_id) -> Story:
         pyotherside.send("fail", reply.status_code)
         return None
 
-    raw_data = raw_data.json()
+    raw_data = reply.json()
     print('Fetching story took', time.time() - t, flush=True)
     if raw_data['type'] == 'comment':
         # app is opening a link directly to a comment
