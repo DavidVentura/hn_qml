@@ -24,7 +24,7 @@ import pyotherside
 session = requests.Session()
 thread_q = queue.Queue()
 
-NUM_BG_THREADS = 4
+NUM_BG_THREADS = 6
 SEARCH_URL = 'https://hn.algolia.com/api/v1/search'
 ITEMS_URL = 'https://hn.algolia.com/api/v1/items/'
 TOP_STORIES_URL = 'https://hacker-news.firebaseio.com/v0/topstories.json'
@@ -86,7 +86,6 @@ def do_work():
     while True:
         t = thread_q.get()
         fetch_and_signal(t)
-        time.sleep(0.05)
 
 for i in range(NUM_BG_THREADS):
     t = threading.Thread(target=do_work)
@@ -174,10 +173,12 @@ def get_story(_id) -> Dict:
         _self.pop('children')
         kids.insert(0, _self)
 
+    now = time.time()
     kids = [{'threadVisible': True,
              'age': _to_relative_time(k['created_at_i']),
              'markup': html.unescape(k['text'] or ''),
              'comment_id': k['id'],
+             'created_days_ago': (now - k['created_at_i']) // 86400,
              **k}
              for k in kids if k['text'] or k['hasKids']]
     story = Story(
@@ -288,6 +289,16 @@ def get_auth_for_id(_id):
             continue
         return qp['auth'][0]
 
+def get_hmac_for_id(_id):
+    cookies = {'user': CONFIG['cookie']}
+    url = 'https://news.ycombinator.com/item?id=' + _id
+    r = requests.get(url, cookies=cookies)
+    soup = BeautifulSoup(r.text, 'html.parser')
+    _input = soup.find('input', {'name': 'hmac'})
+    if _input:
+        return _input.get('value')
+
+
 def vote_up(comment_id):
     auth = get_auth_for_id(comment_id)
     if not auth:
@@ -297,3 +308,24 @@ def vote_up(comment_id):
     cookies = {'user': CONFIG['cookie']}
 
     r = requests.get(VOTE_URL, params={'id': comment_id, 'how': 'up', 'auth': auth}, cookies=cookies)
+
+
+def send_reply(comment_id, text):
+    hmac = get_hmac_for_id(comment_id)
+    if not hmac:
+        return False, "Could not fetch authentication code"
+
+    COMMENT_URL = 'https://news.ycombinator.com/comment'
+    payload = {'parent': comment_id,
+               'hmac': hmac,
+               'text': text,
+               'goto': 'item?id=' + comment_id,
+               }
+    print('Submitting', payload)
+    cookies = {'user': CONFIG['cookie']}
+
+    headers = {"Content-Type": "application/x-www-form-urlencoded" }
+    r = requests.post(COMMENT_URL, data=payload, headers=headers, cookies=cookies)
+    if not r.ok:
+        return False, "Failed to submit: " + r.status_code
+    return True, ""

@@ -38,8 +38,45 @@ MainView {
         id: stack
         anchors.fill: parent
     }
-    Component.onCompleted: stack.push(Qt.resolvedUrl("pages/NewsPage.qml"))
 
+    Popup {
+        id: toast
+        padding: units.dp(12)
+
+        x: stack.width / 2 - width / 2
+        y: stack.height - height - units.dp(14)
+
+        background: Rectangle {
+            color: "#000"
+            opacity: 0.8
+            radius: units.dp(28)
+        }
+
+        Text {
+            id: popupLabel
+            anchors.fill: parent
+            horizontalAlignment: Text.AlignHCenter
+            color: "#ffffff"
+            font.pixelSize: units.dp(14)
+        }
+
+        Timer {
+            id: popupTimer
+            interval: 2000
+            running: true
+            onTriggered: {
+                toast.close()
+            }
+        }
+
+        function show(text) {
+            popupLabel.text = text
+            open()
+            popupTimer.restart()
+        }
+    }
+
+    Component.onCompleted: stack.push(Qt.resolvedUrl("pages/NewsPage.qml"))
     Connections {
         target: UriHandler
 

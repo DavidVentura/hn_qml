@@ -7,8 +7,6 @@ import io.thp.pyotherside 1.3
 UUITK.Page {
     property bool busy: false
     property bool error: false
-    id: loginPage
-    anchors.fill: parent
 
     header: UUITK.PageHeader {
         title: 'Log in'
