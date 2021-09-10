@@ -10,12 +10,21 @@ import "../components"
 UUITK.Page {
     property variant barColor: ['#f44336', '#d500f9', '#304ffe', '#0288d1', '#26A69A', '#00c853', '#fff3e0', '#8d6e63']
     property string pageTitle: '..'
+    property string threadId
     property string pageUrl: 'http://example.com'
     property bool loading: false
     property int highlightComment
 
     Python {
         id: python
+        Component.onCompleted: {
+            addImportPath(Qt.resolvedUrl('../../src/'))
+            importModule('example', function () {})
+            setHandler('fail', function (msg) {
+                popover.show('Failed to fetch thread: ' + msg)
+                loading = false
+            })
+        }
     }
 
     header: UUITK.PageHeader {
@@ -292,29 +301,34 @@ UUITK.Page {
 
     function loadThread(story_id, title, url) {
         listModel.clear()
-        pageTitle = title
         loading = true
-        python.call("example.get_story", [story_id], function (story) {
-            pageTitle = story.title
-            pageUrl = story.url
-            loading = false
+        python.call("example.get_story", [story_id.toString()],
+                    function (story) {
+                        if (story === undefined) {
+                            return
+                        }
 
-            for (var i = 0; i < story.kids.length; i++) {
-                const kid = story.kids[i]
-                listModel.append(kid)
-            }
-            highlightComment = 0
-            if (story.highlight) {
-                highlightComment = story.highlight
-                const idx = indexOfComment(highlightComment)
-                if (idx === -1) {
-                    return
-                }
+                        pageTitle = story.title
+                        pageUrl = story.url
+                        loading = false
 
-                mylv.currentIndex = idx
-            }
-        })
+                        for (var i = 0; i < story.kids.length; i++) {
+                            const kid = story.kids[i]
+                            listModel.append(kid)
+                        }
+                        highlightComment = 0
+                        if (story.highlight) {
+                            highlightComment = story.highlight
+                            const idx = indexOfComment(highlightComment)
+                            if (idx === -1) {
+                                return
+                            }
+
+                            mylv.currentIndex = idx
+                        }
+                    })
     }
+    Component.onCompleted: loadThread(threadId, pageTitle, pageUrl)
 
     function indexOfComment(comment_id) {
         for (var i = 0; i < listModel.count; i++) {

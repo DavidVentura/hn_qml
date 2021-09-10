@@ -141,7 +141,12 @@ def get_story(_id) -> Story:
     _id = str(_id)
 
     t = time.time()
-    raw_data = requests.get(ITEMS_URL + _id).json()
+    reply = requests.get(ITEMS_URL + _id)
+    if not reply.ok:
+        pyotherside.send("fail", reply.status_code)
+        return None
+
+    raw_data = raw_data.json()
     print('Fetching story took', time.time() - t, flush=True)
     if raw_data['type'] == 'comment':
         # app is opening a link directly to a comment

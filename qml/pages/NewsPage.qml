@@ -10,9 +10,8 @@ UUITK.Page {
     property bool searchMode: false
     property bool submittedSearch: false
     property bool searching: false
-    property int id: newsPage
     property variant lastMenuToggled: 0
-    anchors.fill: parent
+
     header: UUITK.PageHeader {
         id: pageHeader
         title: 'Top Stories'
@@ -117,7 +116,7 @@ UUITK.Page {
             iconName: "account"
             label: i18n.tr("Log in")
             onTriggered: {
-                stack.push(loginpage)
+                stack.push(Qt.resolvedUrl("LoginPage.qml"))
             }
         }
         MenuPanelItem {
@@ -197,9 +196,11 @@ UUITK.Page {
                 }
             }
             onThreadClicked: {
-                stack.push(threadview)
-                threadview.loadThread(story_id, title, url)
-                threadview.visible = true
+                stack.push(Qt.resolvedUrl("ThreadView.qml"), {
+                               "threadId": story_id,
+                               "pageTitle": title,
+                               "pageUrl": url
+                           })
             }
         }
     }

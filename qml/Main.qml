@@ -36,22 +36,9 @@ MainView {
 
     StackView {
         id: stack
-        initialItem: newspage
         anchors.fill: parent
     }
-
-    ThreadView {
-        visible: false
-        id: threadview
-    }
-    NewsPage {
-        visible: false
-        id: newspage
-    }
-    LoginPage {
-        visible: false
-        id: loginpage
-    }
+    Component.onCompleted: stack.push(Qt.resolvedUrl("pages/NewsPage.qml"))
 
     Connections {
         target: UriHandler
@@ -62,9 +49,11 @@ MainView {
             if (uris.length > 0) {
                 console.log('Incoming call from UriHandler ' + uris[0])
                 const threadId = /id=(\d+)/.exec(uris[0])[1]
-                stack.push(threadview)
-
-                threadview.loadThread(threadId, '..', uris[0])
+                stack.push(Qt.resolvedUrl("pages/ThreadView.qml"), {
+                               "threadId": threadId,
+                               "pageTitle": "..",
+                               "pageUrl": uris[0]
+                           })
             }
         }
     }
