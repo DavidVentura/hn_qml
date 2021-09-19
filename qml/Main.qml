@@ -77,6 +77,7 @@ MainView {
     }
 
     Component.onCompleted: stack.push(Qt.resolvedUrl("pages/NewsPage.qml"))
+
     Connections {
         target: UriHandler
 

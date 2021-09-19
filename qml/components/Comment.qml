@@ -47,7 +47,7 @@ Column {
             id: commentBody
             width: parent.width
             height: childrenRect.height
-            color: highlightComment == c_id ? '#e8e8d6' : '#f6f6ef'
+            color: highlightComment.toString() === c_id ? '#e8e8d6' : '#f6f6ef'
 
             Column {
                 padding: units.gu(1)

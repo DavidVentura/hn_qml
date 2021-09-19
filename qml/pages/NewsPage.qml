@@ -181,6 +181,8 @@ UUITK.Page {
             t_title: title
             t_url: url_domain
             t_comments: comment_count
+            t_user: user
+            t_ago: age
             Component.onCompleted: {
                 if (!initialized) {
                     initialized = true
@@ -237,9 +239,12 @@ UUITK.Page {
                     item.url = data.url
                     item.comment_count = data.comment_count
                     item.kids = data.kids
+                    item.user = data.user
+                    item.age = data.age
                     break
                 }
             })
+
         }
 
         onError: {

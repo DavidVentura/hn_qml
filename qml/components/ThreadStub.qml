@@ -10,6 +10,8 @@ Item {
     property string t_url: "url"
     property int t_comments: -1
     property variant t_kids
+    property string t_user: ""
+    property string t_ago: ""
 
     height: units.gu(8.5)
     width: parent.width
@@ -24,25 +26,34 @@ Item {
             Layout.fillHeight: true
 
             ColumnLayout {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-
+                anchors.fill: parent
+                anchors.margins: units.gu(1.2)
+                spacing: units.gu(1.2)
                 Text {
-                    Layout.topMargin: units.gu(1)
-                    Layout.leftMargin: units.gu(1.2)
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
                     font.pixelSize: units.gu(1.8)
                     text: t_title
                     wrapMode: Text.WordWrap
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    Layout.preferredWidth: parent.parent.width * 0.95
                 }
-                Text {
-                    Layout.leftMargin: units.gu(1.2)
+                Row {
+                    spacing: units.gu(1)
                     Layout.alignment: Qt.AlignBottom
-
-                    text: t_url
-                    color: '#888'
+                    Text {
+                        text: t_url
+                        color: '#888'
+                        font.pixelSize: units.gu(1.3)
+                    }
+                    Text {
+                        text: t_user
+                        color: '#888'
+                        font.pixelSize: units.gu(1.3)
+                    }
+                    Text {
+                        text: t_ago
+                        color: '#888'
+                        font.pixelSize: units.gu(1.3)
+                    }
                 }
             }
             MouseArea {
@@ -52,7 +63,7 @@ Item {
         }
         Rectangle {
             color: '#ffb64d'
-            Layout.preferredWidth: units.gu(4)
+            Layout.preferredWidth: units.gu(4.5)
             Layout.alignment: Qt.AlignRight
             Layout.fillHeight: true
             Text {

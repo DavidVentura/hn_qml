@@ -79,6 +79,8 @@ Story = NamedTuple(
         ("score", int),
         ("initialized", bool),
         ("highlight", int),
+        ("user", str),
+        ("age", str),
     ],
 )
 
@@ -99,7 +101,8 @@ def top_stories():
     r = requests.get(TOP_STORIES_URL)
     data = r.json()
     return [
-        Story(story_id=str(i), title="..", url="", url_domain="..", kids=[], comment_count=0, score=0, initialized=False, highlight=0)._asdict()
+        Story(story_id=str(i), title="..", url="", url_domain="..", kids=[], comment_count=0, score=0,
+              initialized=False, highlight=0, user="", age="")._asdict()
         for i in data
     ]
 
@@ -113,7 +116,9 @@ def get_story_stub(_id):
                  comment_count=data.get('descendants', 0),
                  score=data['score'],
                  initialized=True,
-                 highlight=0)._asdict()
+                 highlight=0,
+                 user=data['by'],
+                 age=_to_relative_time(data['time']))._asdict()
     return s
 
 def get_id(_id):
@@ -176,7 +181,7 @@ def get_story(_id) -> Dict:
     now = time.time()
     kids = [{'threadVisible': True,
              'age': _to_relative_time(k['created_at_i']),
-             'markup': html.unescape(k['text'] or ''),
+             'markup': k['text'] or '',
              'comment_id': k['id'],
              'created_days_ago': (now - k['created_at_i']) // 86400,
              **k}
@@ -185,7 +190,9 @@ def get_story(_id) -> Dict:
         story_id=_id, title=title, url=url, url_domain=url_domain,
         kids=kids, comment_count=len(kids),
         score=score, initialized=True, highlight='',
-    )
+        user=raw_data["author"],
+        age=_to_relative_time(raw_data['created_at_i']),
+        )
     return story._asdict()
 
 
@@ -226,7 +233,10 @@ def search(query, tags='story'):
               comment_count=i['num_comments'],
               score=i['points'],
               initialized=False,
-              highlight=0)._asdict()
+              highlight=0,
+              user=i['author'],
+              age=_to_relative_time(i['created_at_i']),
+              )._asdict()
         for i in data
     ]
 
@@ -258,11 +268,8 @@ def login_and_store_cookie(user, password):
     session = requests.Session()
 
     payload = { 'acct': user, 'pw': password }
-    print(payload)
     r = session.post(LOGIN_URL, data=payload)
-    print(r.status_code, flush=True)
     cookies = session.cookies.get_dict()
-    print(cookies, flush=True)
     if 'user' in cookies:
         CONFIG['cookie'] = cookies['user']
         save_config()
@@ -270,7 +277,6 @@ def login_and_store_cookie(user, password):
     return False
 
 def get_settings():
-    print(CONFIG, flush=True)
     pyotherside.send('settings', CONFIG)
 
 
