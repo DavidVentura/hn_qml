@@ -63,10 +63,19 @@ Column {
                     }
                     Text {
                         leftPadding: units.gu(0.8)
+                        rightPadding: units.gu(0.8)
                         text: c_author
                         font.pointSize: units.gu(1.1)
                         font.bold: true
                         color: barColor[c_depth % 8]
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: stack.push(Qt.resolvedUrl(
+                                                      "../pages/UserPage.qml"),
+                                                  {
+                                                      "username": c_author
+                                                  })
+                        }
                     }
 
                     Rectangle {

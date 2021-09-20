@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: hnr.davidv.dev\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-19 19:08+0000\n"
+"POT-Creation-Date: 2021-09-20 15:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,19 +17,19 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../qml/components/Comment.qml:115
+#: ../qml/components/Comment.qml:124
 msgid "Share Link"
 msgstr ""
 
-#: ../qml/components/Comment.qml:124
+#: ../qml/components/Comment.qml:133
 msgid "Share Text"
 msgstr ""
 
-#: ../qml/components/Comment.qml:136
+#: ../qml/components/Comment.qml:145
 msgid "Vote up"
 msgstr ""
 
-#: ../qml/components/Comment.qml:150
+#: ../qml/components/Comment.qml:159
 msgid "Reply"
 msgstr ""
 

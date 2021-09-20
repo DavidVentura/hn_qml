@@ -1,7 +1,8 @@
-import QtQuick 2.7
+import QtQuick 2.12
 import QtQuick.Layouts 1.12
+import Ubuntu.Components 1.3 as UITK
 
-Item {
+UITK.ListItem {
     id: stub
     signal urlClicked
     signal threadClicked
@@ -15,7 +16,28 @@ Item {
 
     height: units.gu(8.5)
     width: parent.width
+    //use #808080 for icon color, this is the default keycolor of `Icon` and will then be changed to the themed color
+    UITK.StyleHints {
+        trailingPanelColor: theme.palette.normal.foreground
+        trailingForegroundColor: theme.palette.normal.foregroundText
+    }
 
+    trailingActions: UITK.ListItemActions {
+        actions: [
+
+            UITK.Action {
+                enabled: settings && settings.cookie !== undefined
+                iconName: "select"
+                onTriggered: {
+                    toast.show('Voting..')
+                    python.call('example.vote_up', [t_id.toString()],
+                                function () {
+                                    toast.show('Voted successfully')
+                                })
+                }
+            }
+        ]
+    }
     RowLayout {
         anchors.fill: parent
         spacing: 2

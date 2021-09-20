@@ -146,7 +146,6 @@ UUITK.Page {
     ListView {
         visible: true
         id: mylv
-        spacing: 1
         anchors.fill: parent
         cacheBuffer: height / 2
         boundsMovement: Flickable.StopAtBounds
@@ -244,7 +243,6 @@ UUITK.Page {
                     break
                 }
             })
-
         }
 
         onError: {
