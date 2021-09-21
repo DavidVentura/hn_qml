@@ -130,10 +130,16 @@ def get_id(_id):
 def get_domain(url):
     return url.split("/")[2]
 
+def cumulative_children(children):
+    count = len(children)
+    for c in children:
+        count += cumulative_children(c.get('children', []))
+    return count
+
 def flatten(children, depth):
     res = []
     for c in children:
-        _k = c.pop('children')
+        _k = sorted(c.pop('children'), key=lambda x: cumulative_children(x.get('children', [])), reverse=True)
         c['depth'] = depth
         c['hasKids'] = any(True for k in _k if k['text'] or k['children'])
         res.append(c)
@@ -171,6 +177,7 @@ def get_story(_id) -> Dict:
         url = "self"
         url_domain = "self"
 
+    kids = sorted(kids, key=lambda x: cumulative_children(x.get('children', [])), reverse=True)
     kids = flatten(kids, 0)
 
     if raw_data["text"]:  # self-story
