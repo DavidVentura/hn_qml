@@ -113,6 +113,12 @@ UUITK.Page {
                                "c_author": author
                            })
             }
+            onUsernameTapped: {
+                mylv.currentIndex = indexOfComment(comment_id)
+                stack.push(Qt.resolvedUrl("UserPage.qml"), {
+                               "username": author
+                           })
+            }
         }
         footer: Item {
             width: parent.width

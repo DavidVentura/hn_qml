@@ -335,3 +335,10 @@ def send_reply(comment_id, text):
     if not r.ok:
         return False, "Failed to submit: " + r.status_code
     return True, ""
+
+def get_user_profile(username):
+    PROFILE_URL = "http://hn.algolia.com/api/v1/users/{username}".format(username=username)
+    r = requests.get(PROFILE_URL)
+    if not r.ok:
+        return False, "Failed to fetch: " + r.status_code
+    return r.json()

@@ -15,6 +15,7 @@ Column {
     property int c_depth
     signal showChildrenToggled
     signal replyTapped
+    signal usernameTapped
     anchors.left: parent.left
     anchors.right: parent.right
 
@@ -70,11 +71,7 @@ Column {
                         color: barColor[c_depth % 8]
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: stack.push(Qt.resolvedUrl(
-                                                      "../pages/UserPage.qml"),
-                                                  {
-                                                      "username": c_author
-                                                  })
+                            onClicked: usernameTapped()
                         }
                     }
 

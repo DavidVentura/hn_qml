@@ -76,11 +76,7 @@ MainView {
         }
     }
 
-    Component.onCompleted: stack.push(Qt.resolvedUrl("pages/UserPage.qml"), {
-                                          "username": "pg"
-                                      })
-
-    //    Component.onCompleted: stack.push(Qt.resolvedUrl("pages/NewsPage.qml"))
+    Component.onCompleted: stack.push(Qt.resolvedUrl("pages/NewsPage.qml"))
     Connections {
         target: UriHandler
 
