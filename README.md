@@ -18,10 +18,11 @@ Written in QML/python.
 - Open thread links with app
 - Authentication!
 - Up-voting
+- Replying to comments
+- See users profiles
 
 # Todo
 
-- Replies to comments
 - Submissions
 
 # Abandoned plans
