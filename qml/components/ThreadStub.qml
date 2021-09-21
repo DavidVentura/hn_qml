@@ -21,7 +21,7 @@ UITK.ListItem {
         trailingPanelColor: theme.palette.normal.foreground
         trailingForegroundColor: theme.palette.normal.foregroundText
     }
-
+    divider.colorFrom: "#fff"
     trailingActions: UITK.ListItemActions {
         actions: [
 
