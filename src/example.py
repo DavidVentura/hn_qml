@@ -33,7 +33,7 @@ CONFIG_PATH = Path('/home/phablet/.config/hnr.davidv.dev/')
 CONFIG_FILE = CONFIG_PATH / 'config.json'
 CONFIG = {}
 if not CONFIG_PATH.exists():
-    CONFIG_PATH.mkdir()
+    CONFIG_PATH.mkdir(parents=True, exist_ok=True)
 
 if not CONFIG_FILE.exists():
     with CONFIG_FILE.open('w') as fd:
