@@ -1,7 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Layouts 1.12
 import QtQuick.Controls 2.12
-import Ubuntu.Components 1.3 as UUITK
+import Lomiri.Components 1.3 as UUITK
 import io.thp.pyotherside 1.3
 
 UUITK.Page {
